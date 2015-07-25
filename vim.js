@@ -1,3 +1,4 @@
+
 /*
  | Vim.js | v 0.1
  | vi/vim functionality to textarea and input.
@@ -15,6 +16,7 @@ window.vim_test = (function () {
     var config = undefined;
     var vim = undefined;
     var textUtil = undefined;
+    var clipboard = undefined;
 
     var _special_keys = {
         8:'Backspace',
@@ -34,11 +36,17 @@ window.vim_test = (function () {
     };
 
     var _vim_keys = {
+        //append
+        65:{
+            name:'a',
+            a:'append',
+            A:'appendLineTail'
+        },
         //insert
         73:{
             name:'i',
-            i:'insertAfter',
-            I:'insertBefore'
+            i:'insert',
+            I:'insertLineHead'
         },
         //down
         74:{
@@ -59,6 +67,17 @@ window.vim_test = (function () {
         76:{
             name:'l',
             l:'selectNextCharacter'
+        },
+        //paste
+        80:{
+            name:'p',
+            p:'pasteAfter',
+            P:'pasteBefore'
+        },
+        //copy char
+        89:{
+            name:'y',
+            y:'copyChar'
         }
     };
 
@@ -81,7 +100,7 @@ window.vim_test = (function () {
             var code = ev.keyCode || ev.which || ev.charCode;
             console.log('mode:'+vim.currentMode);
             console.log('input code:' + code);
-            console.log('select:'+textUtil.getSelectedText());
+            console.log('_clipboard:'+ clipboard);
             if (_filter(code)) {
                 //这里要检测是否是相邻键组合键(如yy,dd,dw...), 并修改code值
                 //todo
@@ -141,6 +160,7 @@ window.vim_test = (function () {
             if (ev.shiftKey) {
                 keyName = keyName.toUpperCase();
             }
+            console.log(prefix + _vim_keys[keyCode][keyName] + suffix);
             eval(prefix + _vim_keys[keyCode][keyName] + suffix);
         }
     }
@@ -164,15 +184,15 @@ window.vim_test = (function () {
             vim.resetCursorByMouse();
         };
 
-        this.insertAfter = function() {
-            vim.insertAfter();
+        this.append = function() {
+            vim.append();
             setTimeout(function () {
                 vim.switchModeTo(INPUT);
             }, 100);
         };
 
-        this.insertBefore = function() {
-            vim.insertBefore();
+        this.insert = function() {
+            vim.insert();
             setTimeout(function () {
                 vim.switchModeTo(INPUT);
             }, 100);
@@ -183,8 +203,24 @@ window.vim_test = (function () {
         };
 
         this.selectPrevLine = function () {
-
+            vim.selectPrevLine();
         };
+
+        this.copyChar = function() {
+            clipboard = textUtil.getSelectedText();
+        };
+        
+        this.pasteAfter = function () {
+            if (clipboard !== undefined) {
+                textUtil.appendText(clipboard)
+            }
+        };
+
+        this.pasteBefore = function () {
+            if (clipboard !== undefined) {
+                textUtil.insertText(clipboard)
+            }
+        }
     }
 
     /**
@@ -203,10 +239,9 @@ window.vim_test = (function () {
         };
 
         this.getSelectedText = function() {
-            var t = undefined;
-            t = document.getSelection() || document.selection.createRange().text;
-            return t;
-        } ;
+            var t = document.getSelection() || document.selection.createRange().text;
+            return t + '';
+        };
 
         this.getCursorPosition = function () {
             if (document.selection) {
@@ -237,6 +272,22 @@ window.vim_test = (function () {
             }
         };
 
+        this.appendText = function (t) {
+            var ot = this.getText();
+            var p = this.getCursorPosition() + 1;
+            var nt = ot.slice(0, p) + t + ot.slice(p, ot.length);
+            this.setText(nt);
+            this.select(p, p + t.length);
+        };
+
+        this.insertText = function (t) {
+            var ot = this.getText();
+            var p = this.getCursorPosition();
+            var nt = ot.slice(0, p) + t + ot.slice(p, ot.length);
+            this.setText(nt);
+            this.select(p, p + t.length);
+        };
+
         this.getCountFromStartToPosInCurrLine = function() {
             var p = this.getCursorPosition();
             var s = this.getCurrLineStartPos();
@@ -263,6 +314,32 @@ window.vim_test = (function () {
             var sp = this.getCurrLineStartPos();
             var cc = this.getCurrLineCount();
             return sp + cc + 1;
+        };
+
+        this.getNextLineEnd = function () {
+            var start = this.getNextLineStart();
+            if (start !== undefined) {
+                var end = this.findSymbolAfter(start, "\n");
+                return end || this.getText().length;
+            }
+            return undefined;
+        };
+
+        this.getPrevLineEnd = function () {
+            var p = this.getCurrLineStartPos();
+            if (p > 0) {
+                return p - 1;
+            }
+            return undefined;
+        };
+
+        this.getPrevLineStart = function () {
+           var p = this.getPrevLineEnd();
+           if (p !== undefined) {
+               var sp = this.findSymbolBefore(p, "\n");
+               return sp || 0;
+           }
+           return undefined;
         };
 
         this.findSymbolBefore = function (p, char) {
@@ -306,7 +383,6 @@ window.vim_test = (function () {
             if (modeName === COMMAND || modeName === INPUT || modeName === VISUAL) {
                 this.currentMode = modeName;
             }
-            return this;
         };
 
         this.resetCursorByMouse = function() {
@@ -316,44 +392,50 @@ window.vim_test = (function () {
 
         this.selectNextCharacter = function() {
             var p = textUtil.getCursorPosition();
-            //var text = textUtil.getText();
-            //console.log((p+1)+':'+text.charAt(p+1));
-            textUtil.select(p+1, p+2);
+            if (p+2 <= textUtil.getText().length) {
+                textUtil.select(p+1, p+2);
+            }
         };
 
         this.selectPrevCharacter = function() {
             var p = textUtil.getCursorPosition();
             if (p-1 >= 0) {
-                //var text = textUtil.getText();
-                //console.log(p+':'+text.charAt(p-1));
                 textUtil.select(p-1, p);
             }
         };
 
-        this.insertAfter = function () {
+        this.append = function () {
             var p = textUtil.getCursorPosition();
             textUtil.select(p+1, p+1);
         };
 
-        this.insertBefore = function () {
+        this.insert = function () {
             var p = textUtil.getCursorPosition();
             textUtil.select(p, p);
         };
 
         this.selectNextLine = function () {
-            console.log(textUtil.getCurrLineStartPos());
-            console.log(textUtil.getCurrLineCount());
-            console.log(textUtil.getNextLineStart());
-            console.log(textUtil.getCountFromStartToPosInCurrLine());
-            var sp = textUtil.getNextLineStart();
-            var c = textUtil.getCountFromStartToPosInCurrLine();
-            var ep = sp + c;
-            textUtil.select(ep-1, ep);
+            var nl = textUtil.getNextLineStart();
+            var nr = textUtil.getNextLineEnd();
+            var nc = nr - nl;
+            var cc = textUtil.getCountFromStartToPosInCurrLine();
+            var p = nl + (cc > nc ? nc : cc);
+            if (p < textUtil.getText().length) {
+                textUtil.select(p-1, p);
+            }
         };
 
         this.selectPrevLine = function () {
-
+            var pl = textUtil.getPrevLineStart();
+            var pr = textUtil.getPrevLineEnd();
+            var cc = textUtil.getCountFromStartToPosInCurrLine();
+            var pc = pr - pl;
+            var p = pl + (cc > pc ? pc : cc);
+            if (p > 0) {
+                textUtil.select(p-1, p);
+            }
         };
+
     }
 
     //辅组函数，获取数组里某个元素的索引 index
