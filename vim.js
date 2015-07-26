@@ -39,7 +39,7 @@ window.vim_test = (function () {
         //0:move to current line head
         48:{name:'0', 0:'moveToCurrentLineHead'},
         //&:move to current line tail
-        55:{name:'7', shift_7:'moveToCurrentLineTail'},
+        52:{name:'4', shift_4:'moveToCurrentLineTail'},
         //append
         65:{
             name:'a',
@@ -52,6 +52,8 @@ window.vim_test = (function () {
             i:'insert',
             I:'insertLineHead'
         },
+        //replace
+        82:{name:'r', r:'replaceChar'},
         //down
         74:{
             name:'j',
@@ -100,18 +102,20 @@ window.vim_test = (function () {
                 vim.resetCursorByMouse();
             }
         });
-        Event.on('input', function (ev) {
+        Event.on('input', function (ev, replaced) {
             var code = ev.keyCode || ev.which || ev.charCode;
             console.log('mode:'+vim.currentMode);
             console.log('input code:' + code);
             console.log('_clipboard:'+ clipboard);
+            if (replaced) {
+                return;
+            }
             if (_filter(code)) {
                 //这里要检测是否是相邻键组合键(如yy,dd,dw...), 并修改code值
                 //todo
                 _route(code, ev);
             }
-
-        })
+        });
     }
 
     function _on_click(e) {
@@ -120,16 +124,25 @@ window.vim_test = (function () {
     }
 
     function _on_key_down(e) {
+        var replaced = false;
         var ev = e || event || window.event;
-        Event.fire('input', ev);
         if (vim.isCommandMode()) {
-            if (ev.preventDefault) {
-                ev.preventDefault();
+            if (vim.replaceRequest) {
+                replaced = true;
+                vim.replaceRequest = false;
+                setTimeout(function () {
+                    vim.selectPrevCharacter();
+                }, 50);
             } else {
-                ev.returnValue = false;
+                if (ev.preventDefault) {
+                    ev.preventDefault();
+                } else {
+                    ev.returnValue = false;
+                }
+                //return false;
             }
-            return false;
         }
+        Event.fire('input', ev, replaced);
     }
 
     function _filter(keyCode) {
@@ -236,6 +249,9 @@ window.vim_test = (function () {
         this.moveToCurrentLineTail = function () {
             vim.moveToCurrentLineTail();
         };
+        this.replaceChar = function () {
+            vim.replaceRequest = true;
+        }
     }
 
     /**
@@ -391,6 +407,7 @@ window.vim_test = (function () {
     function Vim() {
 
         this.currentMode = INPUT;
+        this.replaceRequest = false;
 
         this.isCommandMode = function () {
             return this.isMode(COMMAND);
@@ -408,6 +425,7 @@ window.vim_test = (function () {
 
         this.resetCursorByMouse = function() {
             var p = textUtil.getCursorPosition();
+            console.log('---reset-:' + p + ' - ' + (p+1));
             textUtil.select(p, p+1);
         };
 
@@ -466,6 +484,10 @@ window.vim_test = (function () {
             var p = textUtil.getCurrLineEndPos();
             textUtil.select(p-1, p);
         };
+
+        this.replaceChar = function () {
+
+        }
     }
 
     //辅组函数，获取数组里某个元素的索引 index
