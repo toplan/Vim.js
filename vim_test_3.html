@@ -6,13 +6,15 @@
 </head>
 <body>
 <div style="width: 100%">
-<textarea id="text" rows="20" style="width: 90%;">
+<textarea id="text" rows="20" style="width: 90%;word-break: normal;overflow:  ;overflow-x: scroll;">
 xxxx
 22222
-hello everyone, i am to
+hello everyone, i am top lan
     nice to meet you!
 thanks
-这是中文
+这是中文:
+自从有了互联网之后，人们获取知识似乎变得非常简单，但是最终呈现给我们的却是一个真假莫辨的世界。
+各种各样的谣言借助互联网传播开来，在一次又一次的传播中变得越来越看不清真相
 </textarea>
 </div>
 </body>
@@ -50,7 +52,7 @@ thanks
 
         function _key_down(e) {
             var ev = e || window.event || event;
-            var code = ev.keyCode || ev.which || ev.charCode;
+            var code = ev.keyCode || ev.which || ev.charCode || undefined;
             console.log('code:'+code);
             if (ev.preventDefault) {
                 ev.preventDefault();

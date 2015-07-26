@@ -209,8 +209,18 @@ window.vim_test = (function () {
         };
 
         this.switchModeToCommand = function () {
+            if (vim.isMode(COMMAND)) {
+                return;
+            }
             vim.switchModeTo(COMMAND);
-            vim.resetCursorByMouse();
+            var p = textUtil.getCursorPosition();
+            var sp = textUtil.getCurrLineStartPos();
+            if (p === sp) {
+                vim.selectNextCharacter();
+                vim.selectPrevCharacter();
+            } else {
+                vim.selectPrevCharacter();
+            }
         };
 
         this.append = function() {
@@ -289,7 +299,13 @@ window.vim_test = (function () {
         };
 
         this.getSelectedText = function() {
-            var t = document.getSelection() || document.selection.createRange().text;
+            //var t = document.getSelection() || document.selection.createRange().text;
+            var t;
+            if(document.selection){
+                t = document.selection.createRange().text;// for IE
+            } else {
+                t = el.value.substring(el.selectionStart, el.selectionEnd);
+            }
             return t + '';
         };
 
