@@ -36,6 +36,10 @@ window.vim_test = (function () {
     };
 
     var _vim_keys = {
+        //0:move to current line head
+        48:{name:'0', 0:'moveToCurrentLineHead'},
+        //&:move to current line tail
+        55:{name:'7', shift_7:'moveToCurrentLineTail'},
         //append
         65:{
             name:'a',
@@ -148,20 +152,25 @@ window.vim_test = (function () {
         var prefix = 'c.';
         var suffix = '(param)';
 
-        //specail key route
+        //special key route
         if (_special_keys[keyCode] !== undefined) {
             eval(prefix + _special_keys[keyCode][1] + suffix);
         }
 
         //vim key route
         if (_vim_keys[keyCode] !== undefined && vim.isCommandMode()) {
-            //检测是否是组合键,调整分发路径
             var keyName = _vim_keys[keyCode]['name'];
             if (ev.shiftKey) {
-                keyName = keyName.toUpperCase();
+                if (keyName == keyName.toUpperCase()) {
+                    keyName = 'shift_' + keyName;
+                } else {
+                    keyName = keyName.toUpperCase();
+                }
             }
             console.log(prefix + _vim_keys[keyCode][keyName] + suffix);
-            eval(prefix + _vim_keys[keyCode][keyName] + suffix);
+            if (_vim_keys[keyCode][keyName] !== undefined) {
+                eval(prefix + _vim_keys[keyCode][keyName] + suffix);
+            }
         }
     }
 
@@ -220,7 +229,13 @@ window.vim_test = (function () {
             if (clipboard !== undefined) {
                 textUtil.insertText(clipboard)
             }
-        }
+        };
+        this.moveToCurrentLineHead = function () {
+            vim.moveToCurrentLineHead();
+        };
+        this.moveToCurrentLineTail = function () {
+            vim.moveToCurrentLineTail();
+        };
     }
 
     /**
@@ -298,6 +313,12 @@ window.vim_test = (function () {
             var p = this.getCursorPosition();
             var sp = this.findSymbolBefore(p, "\n");
             return sp || 0;
+        };
+
+        this.getCurrLineEndPos = function () {
+            var p = this.getCursorPosition();
+            var end = this.findSymbolAfter(p, "\n");
+            return end || this.getText().length;
         };
 
         this.getCurrLineCount = function () {
@@ -436,6 +457,15 @@ window.vim_test = (function () {
             }
         };
 
+        this.moveToCurrentLineHead = function () {
+            var p = textUtil.getCurrLineStartPos();
+            textUtil.select(p, p+1);
+        };
+
+        this.moveToCurrentLineTail = function () {
+            var p = textUtil.getCurrLineEndPos();
+            textUtil.select(p-1, p);
+        };
     }
 
     //辅组函数，获取数组里某个元素的索引 index
