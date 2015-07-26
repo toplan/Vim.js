@@ -12,6 +12,7 @@ window.vim_test = (function () {
     const  COMMAND = 'COMMAND_MODE';
     const  INPUT   = 'INPUT_MODE';
     const  VISUAL  = 'VISUAL_MODE';
+    const  _ENTER_ = "\n";//\r\n
 
     var config = undefined;
     var vim = undefined;
@@ -51,6 +52,12 @@ window.vim_test = (function () {
             name:'i',
             i:'insert',
             I:'insertLineHead'
+        },
+        //
+        79:{
+            name:'o',
+            o:'appendNewLine',
+            O:'insertNewLine'
         },
         //replace
         82:{name:'r', r:'replaceChar'},
@@ -251,6 +258,18 @@ window.vim_test = (function () {
         };
         this.replaceChar = function () {
             vim.replaceRequest = true;
+        };
+        this.appendNewLine = function () {
+            vim.appendNewLine();
+            setTimeout(function () {
+                vim.switchModeTo(INPUT);
+            }, 100);
+        };
+        this.insertNewLine = function () {
+            vim.insertNewLine();
+            setTimeout(function () {
+                vim.switchModeTo(INPUT);
+            }, 100);
         }
     }
 
@@ -303,17 +322,21 @@ window.vim_test = (function () {
             }
         };
 
-        this.appendText = function (t) {
+        this.appendText = function (t, p) {
             var ot = this.getText();
-            var p = this.getCursorPosition() + 1;
+            if (p === undefined) {
+                p = this.getCursorPosition() + 1;
+            }
             var nt = ot.slice(0, p) + t + ot.slice(p, ot.length);
             this.setText(nt);
             this.select(p, p + t.length);
         };
 
-        this.insertText = function (t) {
+        this.insertText = function (t, p) {
             var ot = this.getText();
-            var p = this.getCursorPosition();
+            if (p === undefined) {
+                p = this.getCursorPosition();
+            }
             var nt = ot.slice(0, p) + t + ot.slice(p, ot.length);
             this.setText(nt);
             this.select(p, p + t.length);
@@ -327,20 +350,20 @@ window.vim_test = (function () {
 
         this.getCurrLineStartPos = function () {
             var p = this.getCursorPosition();
-            var sp = this.findSymbolBefore(p, "\n");
+            var sp = this.findSymbolBefore(p, _ENTER_);
             return sp || 0;
         };
 
         this.getCurrLineEndPos = function () {
             var p = this.getCursorPosition();
-            var end = this.findSymbolAfter(p, "\n");
+            var end = this.findSymbolAfter(p, _ENTER_);
             return end || this.getText().length;
         };
 
         this.getCurrLineCount = function () {
             var p = this.getCursorPosition();
-            var left = this.findSymbolBefore(p, "\n");
-            var right = this.findSymbolAfter(p, "\n");
+            var left = this.findSymbolBefore(p, _ENTER_);
+            var right = this.findSymbolAfter(p, _ENTER_);
             if (left === undefined) {
                 return right;
             }
@@ -356,7 +379,7 @@ window.vim_test = (function () {
         this.getNextLineEnd = function () {
             var start = this.getNextLineStart();
             if (start !== undefined) {
-                var end = this.findSymbolAfter(start, "\n");
+                var end = this.findSymbolAfter(start, _ENTER_);
                 return end || this.getText().length;
             }
             return undefined;
@@ -373,7 +396,7 @@ window.vim_test = (function () {
         this.getPrevLineStart = function () {
            var p = this.getPrevLineEnd();
            if (p !== undefined) {
-               var sp = this.findSymbolBefore(p, "\n");
+               var sp = this.findSymbolBefore(p, _ENTER_);
                return sp || 0;
            }
            return undefined;
@@ -425,7 +448,6 @@ window.vim_test = (function () {
 
         this.resetCursorByMouse = function() {
             var p = textUtil.getCursorPosition();
-            console.log('---reset-:' + p + ' - ' + (p+1));
             textUtil.select(p, p+1);
         };
 
@@ -485,8 +507,16 @@ window.vim_test = (function () {
             textUtil.select(p-1, p);
         };
 
-        this.replaceChar = function () {
+        this.appendNewLine = function () {
+            var p = textUtil.getCurrLineEndPos();
+            textUtil.appendText(_ENTER_ + " ", p);
+            textUtil.select(p+1, p+1);
+        };
 
+        this.insertNewLine = function () {
+            var p = textUtil.getCurrLineStartPos();
+            textUtil.appendText(" " + _ENTER_, p);
+            textUtil.select(p, p);
         }
     }
 
