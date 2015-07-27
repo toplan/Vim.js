@@ -9,8 +9,9 @@
 
 window.vim_test = (function () {
 
+    const  GENERAL = 'GENERAL_MODE';
+    const  EDIT    = 'EDIT_MODE';
     const  COMMAND = 'COMMAND_MODE';
-    const  INPUT   = 'INPUT_MODE';
     const  VISUAL  = 'VISUAL_MODE';
     const  _ENTER_ = "\n";//\r\n
 
@@ -23,7 +24,7 @@ window.vim_test = (function () {
         8:'Backspace',
         9:'Tab',
         13:'Enter',
-        27:['Escape', 'switchModeToCommand'],
+        27:['Escape', 'switchModeToGeneral'],
         33:'PageUp',
         34:'PageDown',
         35:'End',
@@ -87,11 +88,10 @@ window.vim_test = (function () {
             p:'pasteAfter',
             P:'pasteBefore'
         },
+
+        //new add:
         //copy char
-        89:{
-            name:'y',
-            y:'copyChar'
-        }
+        89:{name:'y', y:'copyChar'}
     };
 
     function _init (conf) {
@@ -105,7 +105,7 @@ window.vim_test = (function () {
         config.el.onclick = _on_click;
         config.el.onkeydown = _on_key_down;
         Event.on('reset_cursor_position', function (e) {
-            if (vim.isCommandMode()) {
+            if (vim.isMode(GENERAL)) {
                 vim.resetCursorByMouse();
             }
         });
@@ -133,7 +133,7 @@ window.vim_test = (function () {
     function _on_key_down(e) {
         var replaced = false;
         var ev = e || event || window.event;
-        if (vim.isCommandMode()) {
+        if (vim.isMode(GENERAL)) {
             if (vim.replaceRequest) {
                 replaced = true;
                 vim.replaceRequest = false;
@@ -156,7 +156,7 @@ window.vim_test = (function () {
         var passed = true;
         switch (keyCode) {
             case 229:
-                if (vim.isMode(COMMAND)) {
+                if (vim.isMode(GENERAL)) {
                     passed = false;
                     config.msg('请将输入法切换到英文输入');
                 }
@@ -178,7 +178,7 @@ window.vim_test = (function () {
         }
 
         //vim key route
-        if (_vim_keys[keyCode] !== undefined && vim.isCommandMode()) {
+        if (_vim_keys[keyCode] !== undefined && vim.isMode(GENERAL)) {
             var keyName = _vim_keys[keyCode]['name'];
             if (ev.shiftKey) {
                 if (keyName == keyName.toUpperCase()) {
@@ -208,16 +208,19 @@ window.vim_test = (function () {
             vim.selectNextCharacter();
         };
 
-        this.switchModeToCommand = function () {
-            if (vim.isMode(COMMAND)) {
+        this.switchModeToGeneral = function () {
+            if (vim.isMode(GENERAL)) {
                 return;
             }
-            vim.switchModeTo(COMMAND);
+            vim.switchModeTo(GENERAL);
             var p = textUtil.getCursorPosition();
             var sp = textUtil.getCurrLineStartPos();
             if (p === sp) {
                 vim.selectNextCharacter();
                 vim.selectPrevCharacter();
+                if (textUtil.getCurrLineCount() === 1) {
+                    textUtil.select(p, p+1);
+                }
             } else {
                 vim.selectPrevCharacter();
             }
@@ -226,14 +229,14 @@ window.vim_test = (function () {
         this.append = function() {
             vim.append();
             setTimeout(function () {
-                vim.switchModeTo(INPUT);
+                vim.switchModeTo(EDIT);
             }, 100);
         };
 
         this.insert = function() {
             vim.insert();
             setTimeout(function () {
-                vim.switchModeTo(INPUT);
+                vim.switchModeTo(EDIT);
             }, 100);
         };
 
@@ -272,13 +275,13 @@ window.vim_test = (function () {
         this.appendNewLine = function () {
             vim.appendNewLine();
             setTimeout(function () {
-                vim.switchModeTo(INPUT);
+                vim.switchModeTo(EDIT);
             }, 100);
         };
         this.insertNewLine = function () {
             vim.insertNewLine();
             setTimeout(function () {
-                vim.switchModeTo(INPUT);
+                vim.switchModeTo(EDIT);
             }, 100);
         }
     }
@@ -436,7 +439,20 @@ window.vim_test = (function () {
                 }
             }
             return undefined;
-        }
+        };
+
+        this.getSymbol = function (p) {
+            var text = this.getText();
+            return text.charAt(p) || undefined;
+        };
+
+        this.getNextSymbol = function (p) {
+            return this.getSymbol(p+1);
+        };
+
+        this.getPrevSymbol = function (p) {
+            return this.getSymbol(p-1);
+        };
     }
 
     /**
@@ -445,30 +461,33 @@ window.vim_test = (function () {
      */
     function Vim() {
 
-        this.currentMode = INPUT;
+        this.currentMode = EDIT;
         this.replaceRequest = false;
-
-        this.isCommandMode = function () {
-            return this.isMode(COMMAND);
-        };
 
         this.isMode = function (modeName) {
             return this.currentMode === modeName
         };
 
         this.switchModeTo = function (modeName) {
-            if (modeName === COMMAND || modeName === INPUT || modeName === VISUAL) {
+            if (modeName === GENERAL || modeName === COMMAND || modeName === EDIT || modeName === VISUAL) {
                 this.currentMode = modeName;
             }
         };
 
         this.resetCursorByMouse = function() {
             var p = textUtil.getCursorPosition();
-            textUtil.select(p, p+1);
+            if (textUtil.getNextSymbol(p-1) !== _ENTER_) {
+                textUtil.select(p, p+1);
+            } else {
+                textUtil.select(p-1, p);
+            }
         };
 
         this.selectNextCharacter = function() {
             var p = textUtil.getCursorPosition();
+            if (textUtil.getNextSymbol(p) == _ENTER_) {
+                return;
+            }
             if (p+2 <= textUtil.getText().length) {
                 textUtil.select(p+1, p+2);
             }
@@ -476,6 +495,9 @@ window.vim_test = (function () {
 
         this.selectPrevCharacter = function() {
             var p = textUtil.getCursorPosition();
+            if (textUtil.getPrevSymbol(p) == _ENTER_) {
+                return;
+            }
             if (p-1 >= 0) {
                 textUtil.select(p-1, p);
             }
@@ -499,6 +521,9 @@ window.vim_test = (function () {
             var p = nl + (cc > nc ? nc : cc);
             if (p < textUtil.getText().length) {
                 textUtil.select(p-1, p);
+                if (textUtil.getSymbol(nl) == _ENTER_) {
+                    textUtil.appendText(' ', nl);
+                }
             }
         };
 
@@ -508,8 +533,11 @@ window.vim_test = (function () {
             var cc = textUtil.getCountFromStartToPosInCurrLine();
             var pc = pr - pl;
             var p = pl + (cc > pc ? pc : cc);
-            if (p > 0) {
+            if (p >= 0) {
                 textUtil.select(p-1, p);
+                if (textUtil.getSymbol(pl) == _ENTER_) {
+                    textUtil.appendText(' ', pl);
+                }
             }
         };
 
