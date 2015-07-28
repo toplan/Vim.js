@@ -54,7 +54,6 @@ window.vim_test = (function () {
             i:'insert',
             I:'insertLineHead'
         },
-        //
         79:{
             name:'o',
             o:'appendNewLine',
@@ -88,10 +87,10 @@ window.vim_test = (function () {
             p:'pasteAfter',
             P:'pasteBefore'
         },
-
-        //new add:
         //copy char
-        89:{name:'y', y:'copyChar'}
+        89:{name:'y', y:'copyChar'},
+        //v
+        86:{name:'v', v:'switchModeToVisual', V:'switchModeToVisual'}
     };
 
     function _init (conf) {
@@ -105,7 +104,7 @@ window.vim_test = (function () {
         config.el.onclick = _on_click;
         config.el.onkeydown = _on_key_down;
         Event.on('reset_cursor_position', function (e) {
-            if (vim.isMode(GENERAL)) {
+            if (vim.isMode(GENERAL) || vim.isMode(VISUAL)) {
                 vim.resetCursorByMouse();
             }
         });
@@ -133,7 +132,7 @@ window.vim_test = (function () {
     function _on_key_down(e) {
         var replaced = false;
         var ev = e || event || window.event;
-        if (vim.isMode(GENERAL)) {
+        if (vim.isMode(GENERAL) || vim.isMode(VISUAL)) {
             if (vim.replaceRequest) {
                 replaced = true;
                 vim.replaceRequest = false;
@@ -156,7 +155,7 @@ window.vim_test = (function () {
         var passed = true;
         switch (keyCode) {
             case 229:
-                if (vim.isMode(GENERAL)) {
+                if (vim.isMode(GENERAL) || vim.isMode(VISUAL)) {
                     passed = false;
                     config.msg('请将输入法切换到英文输入');
                 }
@@ -178,7 +177,7 @@ window.vim_test = (function () {
         }
 
         //vim key route
-        if (_vim_keys[keyCode] !== undefined && vim.isMode(GENERAL)) {
+        if (_vim_keys[keyCode] !== undefined && (vim.isMode(GENERAL) || vim.isMode(VISUAL)) ) {
             var keyName = _vim_keys[keyCode]['name'];
             if (ev.shiftKey) {
                 if (keyName == keyName.toUpperCase()) {
@@ -224,6 +223,16 @@ window.vim_test = (function () {
             } else {
                 vim.selectPrevCharacter();
             }
+        };
+
+        this.switchModeToVisual = function () {
+            if (vim.isMode(VISUAL)) {
+                this.switchModeToGeneral();
+                return;
+            }
+            vim.switchModeTo(VISUAL);
+            vim.visualPosition = textUtil.getCursorPosition();
+            vim.visualCursor = undefined;
         };
 
         this.append = function() {
@@ -329,6 +338,11 @@ window.vim_test = (function () {
         };
 
         this.select = function (start, end) {
+            if (start > end) {
+                var p = start;
+                start = end;
+                end = p;
+            }
             if(document.selection){
                 var range = el.createTextRange();
                 range.moveEnd('character', -el.value.length);
@@ -367,20 +381,26 @@ window.vim_test = (function () {
             return (p - s) + 1;
         };
 
-        this.getCurrLineStartPos = function () {
-            var p = this.getCursorPosition();
+        this.getCurrLineStartPos = function (p) {
+            if (p === undefined) {
+                p = this.getCursorPosition();
+            }
             var sp = this.findSymbolBefore(p, _ENTER_);
             return sp || 0;
         };
 
-        this.getCurrLineEndPos = function () {
-            var p = this.getCursorPosition();
+        this.getCurrLineEndPos = function (p) {
+            if (p === undefined) {
+                p = this.getCursorPosition();
+            }
             var end = this.findSymbolAfter(p, _ENTER_);
             return end || this.getText().length;
         };
 
-        this.getCurrLineCount = function () {
-            var p = this.getCursorPosition();
+        this.getCurrLineCount = function (p) {
+            if (p === undefined) {
+                p = this.getCursorPosition();
+            }
             var left = this.findSymbolBefore(p, _ENTER_);
             var right = this.findSymbolAfter(p, _ENTER_);
             if (left === undefined) {
@@ -389,14 +409,14 @@ window.vim_test = (function () {
             return right - left;
         };
 
-        this.getNextLineStart = function () {
-            var sp = this.getCurrLineStartPos();
-            var cc = this.getCurrLineCount();
+        this.getNextLineStart = function (p) {
+            var sp = this.getCurrLineStartPos(p);
+            var cc = this.getCurrLineCount(p);
             return sp + cc + 1;
         };
 
-        this.getNextLineEnd = function () {
-            var start = this.getNextLineStart();
+        this.getNextLineEnd = function (p) {
+            var start = this.getNextLineStart(p);
             if (start !== undefined) {
                 var end = this.findSymbolAfter(start, _ENTER_);
                 return end || this.getText().length;
@@ -404,16 +424,16 @@ window.vim_test = (function () {
             return undefined;
         };
 
-        this.getPrevLineEnd = function () {
-            var p = this.getCurrLineStartPos();
+        this.getPrevLineEnd = function (pos) {
+            var p = this.getCurrLineStartPos(pos);
             if (p > 0) {
                 return p - 1;
             }
             return undefined;
         };
 
-        this.getPrevLineStart = function () {
-           var p = this.getPrevLineEnd();
+        this.getPrevLineStart = function (pos) {
+           var p = this.getPrevLineEnd(pos);
            if (p !== undefined) {
                var sp = this.findSymbolBefore(p, _ENTER_);
                return sp || 0;
@@ -463,6 +483,8 @@ window.vim_test = (function () {
 
         this.currentMode = EDIT;
         this.replaceRequest = false;
+        this.visualPosition = undefined;
+        this.visualCursor = undefined;
 
         this.isMode = function (modeName) {
             return this.currentMode === modeName
@@ -475,6 +497,7 @@ window.vim_test = (function () {
         };
 
         this.resetCursorByMouse = function() {
+            this.switchModeTo(GENERAL);
             var p = textUtil.getCursorPosition();
             if (textUtil.getNextSymbol(p-1) !== _ENTER_) {
                 textUtil.select(p, p+1);
@@ -485,11 +508,19 @@ window.vim_test = (function () {
 
         this.selectNextCharacter = function() {
             var p = textUtil.getCursorPosition();
+            if (this.isMode(VISUAL) && this.visualCursor !== undefined) {
+                p = this.visualCursor;
+            }
             if (textUtil.getNextSymbol(p) == _ENTER_) {
                 return;
             }
             if (p+2 <= textUtil.getText().length) {
-                textUtil.select(p+1, p+2);
+                var s = p+1;
+                if (this.isMode(VISUAL)) {
+                    s = this.visualPosition;
+                    this.visualCursor = p+1;
+                }
+                textUtil.select(s, p+2);
             }
         };
 
@@ -499,7 +530,15 @@ window.vim_test = (function () {
                 return;
             }
             if (p-1 >= 0) {
-                textUtil.select(p-1, p);
+                if (this.isMode(VISUAL) && this.visualCursor !== undefined) {
+                    p = this.visualCursor;
+                }
+                var s = p-1;
+                if (this.isMode(VISUAL)) {
+                    s = this.visualPosition;
+                    this.visualCursor = p-1;
+                }
+                textUtil.select(s, p);
             }
         };
 
@@ -514,29 +553,55 @@ window.vim_test = (function () {
         };
 
         this.selectNextLine = function () {
-            var nl = textUtil.getNextLineStart();
-            var nr = textUtil.getNextLineEnd();
+            var sp = undefined;
+            if (this.isMode(VISUAL) && this.visualCursor !== undefined) {
+                sp = this.visualCursor;
+            }
+            var nl = textUtil.getNextLineStart(sp);
+            var nr = textUtil.getNextLineEnd(sp);
             var nc = nr - nl;
             var cc = textUtil.getCountFromStartToPosInCurrLine();
             var p = nl + (cc > nc ? nc : cc);
             if (p < textUtil.getText().length) {
-                textUtil.select(p-1, p);
-                if (textUtil.getSymbol(nl) == _ENTER_) {
-                    textUtil.appendText(' ', nl);
+                var s = p-1;
+                if (this.isMode(VISUAL)) {
+                    s = this.visualPosition;
+                    this.visualCursor = p;
+                    //console.log('1-----:'+this.visualPosition);
+                    //console.log('2-----:'+this.visualCursor);
+                }
+                textUtil.select(s, p);
+                if (this.isMode(GENERAL)) {
+                    if (textUtil.getSymbol(nl) == _ENTER_) {
+                        textUtil.appendText(' ', nl);
+                    }
                 }
             }
         };
 
         this.selectPrevLine = function () {
-            var pl = textUtil.getPrevLineStart();
-            var pr = textUtil.getPrevLineEnd();
+            var sp = undefined;
+            if (this.isMode(VISUAL) && this.visualCursor !== undefined) {
+                sp = this.visualCursor;
+            }
+            var pl = textUtil.getPrevLineStart(sp);
+            var pr = textUtil.getPrevLineEnd(sp);
             var cc = textUtil.getCountFromStartToPosInCurrLine();
             var pc = pr - pl;
             var p = pl + (cc > pc ? pc : cc);
             if (p >= 0) {
-                textUtil.select(p-1, p);
-                if (textUtil.getSymbol(pl) == _ENTER_) {
-                    textUtil.appendText(' ', pl);
+                var s = p-1;
+                if (this.isMode(VISUAL)) {
+                    s = this.visualPosition;
+                    this.visualCursor = p;
+                    //console.log('3-----:'+this.visualPosition);
+                    //console.log('4-----:'+this.visualCursor);
+                }
+                textUtil.select(s, p);
+                if (this.isMode(GENERAL)) {
+                    if (textUtil.getSymbol(pl) == _ENTER_) {
+                        textUtil.appendText(' ', pl);
+                    }
                 }
             }
         };
