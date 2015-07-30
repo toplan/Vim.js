@@ -90,7 +90,9 @@ window.vim_test = (function () {
         //copy char
         89:{name:'y', y:'copyChar'},
         //v
-        86:{name:'v', v:'switchModeToVisual', V:'switchModeToVisual'}
+        86:{name:'v', v:'switchModeToVisual', V:'switchModeToVisual'},
+        //delete character
+        88:{name:'x', x:'delCharAfter', X:'delCharBefore'}
     };
 
     function _init (conf) {
@@ -208,6 +210,7 @@ window.vim_test = (function () {
         };
 
         this.switchModeToGeneral = function () {
+            var cMode= vim.currentMode;
             if (vim.isMode(GENERAL)) {
                 return;
             }
@@ -221,6 +224,9 @@ window.vim_test = (function () {
                     textUtil.select(p, p+1);
                 }
             } else {
+                if (cMode === VISUAL) {
+                    vim.selectNextCharacter();
+                }
                 vim.selectPrevCharacter();
             }
         };
@@ -259,6 +265,9 @@ window.vim_test = (function () {
 
         this.copyChar = function() {
             clipboard = textUtil.getSelectedText();
+            if (vim.isMode(VISUAL)) {
+                this.switchModeToGeneral();
+            }
         };
         
         this.pasteAfter = function () {
@@ -292,6 +301,9 @@ window.vim_test = (function () {
             setTimeout(function () {
                 vim.switchModeTo(EDIT);
             }, 100);
+        };
+        this.delCharAfter = function () {
+            vim.deleteSelected();
         }
     }
 
@@ -337,6 +349,22 @@ window.vim_test = (function () {
             }
         };
 
+        this.getSelectEndPos = function () {
+            if (document.selection) {
+                el.focus();
+                var ds = document.selection;
+                var range = ds.createRange();
+                var stored_range = range.duplicate();
+                stored_range.moveToElementText(el);
+                stored_range.setEndPoint("EndToEnd", range);
+                el.selectionStart = stored_range.text.length - range.text.length;
+                el.selectionEnd = el.selectionStart + range.text.length;
+                return el.selectionEnd;
+            } else {
+                return el.selectionEnd;
+            }
+        };
+
         this.select = function (start, end) {
             if (start > end) {
                 var p = start;
@@ -373,6 +401,27 @@ window.vim_test = (function () {
             var nt = ot.slice(0, p) + t + ot.slice(p, ot.length);
             this.setText(nt);
             this.select(p, p + t.length);
+        };
+
+        this.delete = function (sp, ep) {
+            if (sp > ep) {
+                var p = ep;
+                sp = ep;
+                ep = p;
+            }
+            console.log(sp);
+            console.log(ep);
+            if (ep - sp > 0) {
+                var t = this.getText();
+                var nt = t.slice(0, sp) + t.slice(ep);
+                this.setText(nt);
+            }
+        };
+
+        this.delSelected = function () {
+            var sp = this.getCursorPosition();
+            var ep = this.getSelectEndPos();
+            this.delete(sp, ep);
         };
 
         this.getCountFromStartToPosInCurrLine = function() {
@@ -473,6 +522,7 @@ window.vim_test = (function () {
         this.getPrevSymbol = function (p) {
             return this.getSymbol(p-1);
         };
+
     }
 
     /**
@@ -626,6 +676,12 @@ window.vim_test = (function () {
             var p = textUtil.getCurrLineStartPos();
             textUtil.appendText(" " + _ENTER_, p);
             textUtil.select(p, p);
+        };
+
+        this.deleteSelected = function () {
+            var p = textUtil.getCursorPosition();
+            textUtil.delSelected();
+            textUtil.select(p, p+1);
         }
     }
 
