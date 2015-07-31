@@ -6,21 +6,40 @@
 </head>
 <body>
 <div style="width: 100%">
-<textarea id="text" rows="20" style="font-size: 16px;;width: 90%;word-break: normal;overflow:  ;overflow-x: scroll;">
-xxxx
-22222
-hello everyone, i am top lan
-    nice to meet you!
-thanks
-这是中文:
-自从有了互联网之后，人们获取知识似乎变得非常简单，但是最终呈现给我们的却是一个真假莫辨的世界。
-各种各样的谣言借助互联网传播开来，在一次又一次的传播中变得越来越看不清真相
+<textarea id="text" rows="200" style="background: #333;color: #eee;font-size: 16px;;width:100%;word-break: normal;overflow:  ;overflow-x: scroll;">
+public function getRecords()
+    {
+        $vars = [];
+        $vars['title'] = '我的上课记录 - 个人中心';
+        $vars['personal_center_menu'] = [
+            'name' => '上课记录',
+            'breadcrumbs' => [
+                '上课记录' => '/student/records',
+            ],
+        ];
+        $orders = Order::where('user_id', $this->user->id)->where('subject_id', '>', 0)->get();
+        $lessons = new Collection([]);
+        foreach ($orders as $order) {
+            $temp = $order->lessons()->orderBy('start_time', 'desc')->get();
+            $lessons = $lessons->merge($temp);
+        }
+        $lessons = $lessons->all();
+        $lessons_before = [];
+        $lessons_after = [];
+        foreach ($lessons as $lesson) {
+            if ($lesson->is_finished && $lesson->pivot->is_comment) {
+                $lessons_before[] = $lesson;
+            } else {
+                $lessons_after[] = $lesson;
+            }
+        }
+        $lessons = array_merge(Lesson::quick_sort($lessons_after), $lessons_before);
+        $current = Input::get('page', 1) - 1;
+        $matches = array_slice($lessons, $current * 15, 15);
+        $vars['items'] = new Paginator($matches, count($lessons), 15, Input::get('page', 1), ['path'=>'/'.Request::path()]);
+        return view('v3.site.student.records', $vars);
+}
 </textarea>
-</div>
-<div id="x">
-<b>这是中文:</b>
-<p>自从有了互联网之后，人们获取知识似乎变得非常简单，但是最终呈现给我们的却是一个真假莫辨的世界。</p>
-<p>各种各样的谣言借助互联网传播开来，在一次又一次的传播中变得越来越看不清真相</p>
 </div>
 </body>
 
