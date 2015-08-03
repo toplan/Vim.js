@@ -233,7 +233,9 @@ window.vim_test = (function () {
 
         this.switchModeToVisual = function () {
             if (vim.isMode(VISUAL)) {
-                this.switchModeToGeneral();
+                var s = vim.visualCursor;
+                textUtil.select(s, s+1);
+                vim.switchModeTo(GENERAL);
                 return;
             }
             vim.switchModeTo(VISUAL);
@@ -594,7 +596,6 @@ window.vim_test = (function () {
             var s = p-1;
             if (this.isMode(VISUAL)) {
                 s = this.visualPosition;
-                console.log(s + "-" + (p));
                 if (s == p) {
                     p = p+1;
                     s = s-1;
@@ -621,7 +622,6 @@ window.vim_test = (function () {
                 this.visualCursor = 0;
             }
             if ((this.isMode(GENERAL) && s>=0) || this.isMode(VISUAL)) {
-                console.log(s + "--" + (p));
                 textUtil.select(s, p);
             }
         };
