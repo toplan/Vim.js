@@ -568,10 +568,18 @@ window.vim_test = (function () {
                     s = this.visualPosition;
                     this.visualCursor = p+1;
                 }
-                console.log(s + "+" + (p+2));
-                console.log('========='+(this.visualPosition));
-                console.log('========='+(textUtil.getSelectEndPos()));
+                var f1 = this.visualCursor;
+                var f2 = this.visualPosition;
+                var f3 = textUtil.getCursorPosition();
+                //default
                 textUtil.select(s, p+2);
+                //special
+                if (f2 > f1 && f2 > f3) {
+                    textUtil.select(s, p+1);
+                } else if (f1 == f2 && f2 - f3 == 1) {
+                    this.visualPosition = f2-1;
+                    textUtil.select(s-1, p+2);
+                }
             }
         };
 
