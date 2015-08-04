@@ -607,11 +607,11 @@ window.vim_test = (function () {
 
         this.selectPrevCharacter = function() {
             var p = textUtil.getCursorPosition();
-            if (textUtil.getPrevSymbol(p) == _ENTER_) {
-                return;
-            }
             if (this.isMode(VISUAL) && this.visualCursor !== undefined) {
                 p = this.visualCursor;
+            }
+            if (textUtil.getPrevSymbol(p) == _ENTER_) {
+                return;
             }
             var s = p-1;
             if (this.isMode(VISUAL)) {
