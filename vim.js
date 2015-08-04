@@ -708,12 +708,34 @@ window.vim_test = (function () {
 
         this.moveToCurrentLineHead = function () {
             var p = textUtil.getCurrLineStartPos();
-            textUtil.select(p, p+1);
+            if (this.isMode(GENERAL)) {
+                textUtil.select(p, p+1);
+            }
+            if (this.isMode(VISUAL)) {
+                sp = vim.visualCursor;
+                if (sp === undefined) {
+                    var sp = textUtil.getCursorPosition();
+                }
+                for (sp;sp>=p;sp--) {
+                    this.selectPrevCharacter();
+                }
+            }
         };
 
         this.moveToCurrentLineTail = function () {
             var p = textUtil.getCurrLineEndPos();
-            textUtil.select(p-1, p);
+            if (this.isMode(GENERAL)) {
+                textUtil.select(p - 1, p);
+            }
+            if (this.isMode(VISUAL)) {
+                sp = vim.visualCursor;
+                if (sp === undefined) {
+                    var sp = textUtil.getCursorPosition();
+                }
+                for (sp;sp<=p;sp++){
+                    this.selectNextCharacter();
+                }
+            }
         };
 
         this.appendNewLine = function () {
