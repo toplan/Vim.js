@@ -716,7 +716,7 @@ window.vim_test = (function () {
                 if (sp === undefined) {
                     var sp = textUtil.getCursorPosition();
                 }
-                for (sp;sp>=p;sp--) {
+                for (sp;sp>p;sp--) {
                     this.selectPrevCharacter();
                 }
             }
@@ -732,7 +732,7 @@ window.vim_test = (function () {
                 if (sp === undefined) {
                     var sp = textUtil.getCursorPosition();
                 }
-                for (sp;sp<=p;sp++){
+                for (sp;sp<p;sp++){
                     this.selectNextCharacter();
                 }
             }
