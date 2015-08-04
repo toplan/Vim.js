@@ -234,7 +234,15 @@ window.vim_test = (function () {
         this.switchModeToVisual = function () {
             if (vim.isMode(VISUAL)) {
                 var s = vim.visualCursor;
-                textUtil.select(s, s+1);
+                var p = vim.visualPosition;
+                if (p < s) {
+                    textUtil.select(s-1, s);
+                } else {
+                    textUtil.select(s, s+1);
+                }
+                if (textUtil.getPrevSymbol(s) == _ENTER_) {
+                    textUtil.select(s, s+1);
+                }
                 vim.switchModeTo(GENERAL);
                 return;
             }
@@ -561,7 +569,10 @@ window.vim_test = (function () {
             if (this.isMode(VISUAL) && this.visualCursor !== undefined) {
                 p = this.visualCursor;
             }
-            if (textUtil.getNextSymbol(p) == _ENTER_) {
+            if (this.isMode(GENERAL) && textUtil.getNextSymbol(p) == _ENTER_) {
+                return;
+            }
+            if (this.isMode(VISUAL) && textUtil.getNextSymbol(p-1) == _ENTER_) {
                 return;
             }
             if (p+2 <= textUtil.getText().length) {
@@ -569,18 +580,27 @@ window.vim_test = (function () {
                 if (this.isMode(VISUAL)) {
                     s = this.visualPosition;
                     this.visualCursor = p+1;
+                    var f1 = this.visualCursor;
+                    var f2 = this.visualPosition;
+                    var f3 = textUtil.getCursorPosition();
                 }
-                var f1 = this.visualCursor;
-                var f2 = this.visualPosition;
-                var f3 = textUtil.getCursorPosition();
                 //default
                 textUtil.select(s, p+2);
                 //special
-                if (f2 > f1 && f2 > f3) {
-                    textUtil.select(s, p+1);
-                } else if (f1 == f2 && f2 - f3 == 1) {
-                    this.visualPosition = f2-1;
-                    textUtil.select(s-1, p+2);
+                if (this.isMode(VISUAL)) {
+                    if (s == p) {
+                        textUtil.select(s, p+2);
+                        this.visualCursor = p+2;
+                    } else {
+                        textUtil.select(s, p+1);
+                    }
+                    if (f2 > f1 && f2 > f3) {
+                        textUtil.select(s, p+1);
+                    } else if (f1 == f2 && f2 - f3 == 1) {
+                        this.visualPosition = f2-1;
+                        this.visualCursor = p+2;
+                        textUtil.select(s-1, p+2);
+                    }
                 }
             }
         };
@@ -603,7 +623,7 @@ window.vim_test = (function () {
                     this.visualCursor = s;
                 } else if (p == s+1) {
                     s = s+1;
-                    p = s-1;
+                    p = p-2;
                     this.visualPosition = s;
                     this.visualCursor = p;
                 } else if (p == s-1) {
