@@ -616,6 +616,9 @@ window.vim_test = (function () {
             var s = p-1;
             if (this.isMode(VISUAL)) {
                 s = this.visualPosition;
+                if (s == textUtil.getCurrLineStartPos() && textUtil.getPrevSymbol(p-1) == _ENTER_) {
+                    return;
+                }
                 if (s == p) {
                     p = p+1;
                     s = s-1;
