@@ -234,6 +234,9 @@ window.vim_test = (function () {
         this.switchModeToVisual = function () {
             if (vim.isMode(VISUAL)) {
                 var s = vim.visualCursor;
+                if (s === undefined) {
+                    return;
+                }
                 var p = vim.visualPosition;
                 if (p < s) {
                     textUtil.select(s-1, s);
