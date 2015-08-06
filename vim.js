@@ -718,10 +718,12 @@ window.vim_test = (function () {
                 textUtil.select(p, p+1);
             }
             if (this.isMode(VISUAL)) {
-                sp = vim.visualCursor;
+                var sp = vim.visualCursor;
                 if (sp === undefined) {
-                    var sp = textUtil.getCursorPosition();
+                    sp = textUtil.getCursorPosition();
                 }
+                //var p = textUtil.getCurrLineStartPos(sp)+1;
+                //console.log(p+'***'+sp);
                 for (sp;sp>p;sp--) {
                     this.selectPrevCharacter();
                 }
@@ -734,9 +736,13 @@ window.vim_test = (function () {
                 textUtil.select(p - 1, p);
             }
             if (this.isMode(VISUAL)) {
-                sp = vim.visualCursor;
+                var sp = vim.visualCursor;
                 if (sp === undefined) {
-                    var sp = textUtil.getCursorPosition();
+                    sp = textUtil.getCursorPosition();
+                }
+                p = textUtil.getCurrLineEndPos(sp);
+                if (sp == p-1) {
+                    p = p-1
                 }
                 for (sp;sp<p;sp++){
                     this.selectNextCharacter();
