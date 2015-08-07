@@ -19,6 +19,8 @@ window.vim_test = (function () {
     var vim = undefined;
     var textUtil = undefined;
     var clipboard = undefined;
+    var prevCode = undefined;
+    var prevCodeTime = 0;
 
     var _special_keys = {
         8:'Backspace',
@@ -89,6 +91,7 @@ window.vim_test = (function () {
         },
         //copy char
         89:{name:'y', y:'copyChar'},
+        '89_89':{name:'yy', yy:''},
         //v
         86:{name:'v', v:'switchModeToVisual', V:'switchModeToVisual'},
         //delete character
@@ -113,14 +116,18 @@ window.vim_test = (function () {
         Event.on('input', function (ev, replaced) {
             var code = ev.keyCode || ev.which || ev.charCode;
             console.log('mode:'+vim.currentMode);
-            console.log('input code:' + code);
-            console.log('_clipboard:'+ clipboard);
+            console.log('input code:' + code+' ---time:' + _current_time());
             if (replaced) {
                 return;
             }
             if (_filter(code)) {
                 //这里要检测是否是相邻键组合键(如yy,dd,dw...), 并修改code值
                 //todo
+                var unionCode = _is_union_code(code, -1);
+                if (unionCode !== undefined && _vim_keys[unionCode] !== undefined) {
+                    code = unionCode;
+                }
+                console.log('union code:'+unionCode);
                 _route(code, ev);
             }
         });
@@ -282,7 +289,11 @@ window.vim_test = (function () {
                 this.switchModeToGeneral();
             }
         };
-        
+
+        this.copyCurrentLine = function() {
+
+        };
+
         this.pasteAfter = function () {
             if (clipboard !== undefined) {
                 textUtil.appendText(clipboard)
@@ -768,6 +779,25 @@ window.vim_test = (function () {
             textUtil.select(p, p+1);
         }
     }
+
+    var _current_time = function () {
+        return new Date().getTime();
+    };
+
+    var _is_union_code = function (code, maxTime) {
+        if (maxTime === undefined) {
+            maxTime = 600;
+        }
+        var ct = _current_time();
+        var pt = prevCodeTime;
+        var pc = prevCode;
+        prevCode = code;
+        prevCodeTime = ct;
+        if (maxTime < 0 || ct - pt <= maxTime) {
+            return pc + '_' + code;
+        }
+        return undefined;
+    };
 
     //辅组函数，获取数组里某个元素的索引 index
     var _indexOf = function(array,key){
