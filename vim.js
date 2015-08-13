@@ -91,7 +91,7 @@ window.vim_test = (function () {
         },
         //copy char
         89:{name:'y', y:'copyChar'},
-        '89_89':{name:'yy', yy:''},
+        '89_89':{name:'yy', yy:'copyCurrentLine'},
         //v
         86:{name:'v', v:'switchModeToVisual', V:'switchModeToVisual'},
         //delete character
@@ -291,7 +291,7 @@ window.vim_test = (function () {
         };
 
         this.copyCurrentLine = function() {
-
+            vim.copyCurrentLine();
         };
 
         this.pasteAfter = function () {
@@ -338,7 +338,10 @@ window.vim_test = (function () {
      */
     function Text(el) {
 
-        this.getText = function() {
+        this.getText = function(sp, ep) {
+            if (sp !== undefined || ep !== undefined) {
+                return el.value.slice(sp, ep);
+            }
             return el.value;
         };
 
@@ -733,8 +736,6 @@ window.vim_test = (function () {
                 if (sp === undefined) {
                     sp = textUtil.getCursorPosition();
                 }
-                //var p = textUtil.getCurrLineStartPos(sp)+1;
-                //console.log(p+'***'+sp);
                 for (sp;sp>p;sp--) {
                     this.selectPrevCharacter();
                 }
@@ -777,6 +778,12 @@ window.vim_test = (function () {
             var p = textUtil.getCursorPosition();
             textUtil.delSelected();
             textUtil.select(p, p+1);
+        };
+
+        this.copyCurrentLine = function () {
+            var sp = textUtil.getCurrLineStartPos();
+            var ep = textUtil.getCurrLineEndPos();
+            clipboard = textUtil.getText(sp, ep);
         }
     }
 
