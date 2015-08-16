@@ -1,4 +1,4 @@
-# Vim.js
+# Vim.0.1.js
 Vim for web textarea and input field. To improve writing experience.
 
 **This project is in development!**
@@ -12,7 +12,7 @@ Vim for web textarea and input field. To improve writing experience.
 # supported command
 
 * esc : switch mode to general
-* j | k | h | l : remove cursor
+* j | k | h | l : move cursor
 * v | V : switch mode to visual
 * a | A
 * i | I

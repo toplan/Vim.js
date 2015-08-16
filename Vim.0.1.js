@@ -1,6 +1,6 @@
 
 /*
- | Vim.js | v 0.1
+ | Vim.0.1.js | v 0.1
  | vi/vim functionality to textarea and input.
  |------------------------------------
  | Created by top on 15-7-25.
