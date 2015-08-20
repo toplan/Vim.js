@@ -3,10 +3,10 @@ Vim for web textarea and input field. To improve writing experience.
 
 **This project is in development!**
 
-# currently supported browser
+# supported browser
 
-* Chrome
-* Firefox
+* Chrome  v39
+* Firefox  v34
 * Safari
 
 # supported command
