@@ -408,6 +408,12 @@ window.vim = (function () {
                 start = end;
                 end = p;
             }
+            if (start < 0) {
+                start = 0;
+            }
+            if (end > this.getText().length) {
+                end = this.getText().length;
+            }
             if(document.selection){
                 var range = el.createTextRange();
                 range.moveEnd('character', -el.value.length);
