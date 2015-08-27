@@ -21,8 +21,7 @@ window.vim = (function () {
     var clipboard = undefined;
     var prevCode = undefined;
     var prevCodeTime = 0;
-
-    var _white_list = [9, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123];
+    var _keycode_white_list = [9, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123];
 
     var _special_keys = {
         8:'Backspace',
@@ -121,19 +120,16 @@ window.vim = (function () {
         });
         Event.on('input', function (ev, replaced) {
             var code = ev.keyCode || ev.which || ev.charCode;
-            console.log('mode:'+vim.currentMode);
-            console.log('input code:' + code+' ---time:' + _current_time());
+            log('mode:'+vim.currentMode);
             if (replaced) {
                 return;
             }
             if (_filter(code)) {
-                //这里要检测是否是相邻键组合键(如yy,dd,dw...), 并修改code值
-                //todo
                 var unionCode = _is_union_code(code, -1);
                 if (unionCode !== undefined && _vim_keys[unionCode] !== undefined) {
                     code = unionCode;
                 }
-                console.log('union code:'+unionCode);
+                log('key code:' + code);
                 _route(code, ev);
             }
         });
@@ -154,7 +150,7 @@ window.vim = (function () {
         var replaced = false;
         var ev = e || event || window.event;
         var code = ev.keyCode || ev.which || ev.charCode;
-        if (_indexOf(_white_list, code) !== -1) {
+        if (_indexOf(_keycode_white_list, code) !== -1) {
             return true;
         }
         if (vim.isMode(GENERAL) || vim.isMode(VISUAL)) {
@@ -170,7 +166,6 @@ window.vim = (function () {
                 } else {
                     ev.returnValue = false;
                 }
-                //return false;
             }
         }
         Event.fire('input', ev, replaced);
@@ -211,7 +206,7 @@ window.vim = (function () {
                     keyName = keyName.toUpperCase();
                 }
             }
-            console.log(prefix + _vim_keys[keyCode][keyName] + suffix);
+            log(prefix + _vim_keys[keyCode][keyName] + suffix);
             if (_vim_keys[keyCode][keyName] !== undefined) {
                 eval(prefix + _vim_keys[keyCode][keyName] + suffix);
             }
@@ -825,6 +820,12 @@ window.vim = (function () {
             return pc + '_' + code;
         }
         return undefined;
+    };
+
+    var log = function (msg) {
+        if (config.debug) {
+            console.log(msg);
+        }
     };
 
     //辅组函数，获取数组里某个元素的索引 index
