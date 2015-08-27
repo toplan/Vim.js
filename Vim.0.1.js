@@ -729,11 +729,15 @@ window.vim = (function () {
             var p = pl + (cc > pc ? pc : cc);
             if (p >= 0) {
                 var s = p-1;
+                var e = p;
                 if (this.isMode(VISUAL)) {
                     s = this.visualPosition;
-                    this.visualCursor = p;
+                    if (textUtil.getPrevSymbol(p) != _ENTER_) {
+                        e = p-1;
+                    }
+                    this.visualCursor = e;
                 }
-                textUtil.select(s, p);
+                textUtil.select(s, e);
                 if (this.isMode(GENERAL)) {
                     if (textUtil.getSymbol(pl) == _ENTER_) {
                         textUtil.appendText(' ', pl);
