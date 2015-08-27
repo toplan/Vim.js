@@ -651,8 +651,7 @@ window.vim_test = (function () {
                     this.visualCursor = p;
                 } else {
                     //default
-                    if (s < p && (p+1 == textUtil.getSelectEndPos())) {
-                    } else {
+                    if (!(s < p && (p+1 == textUtil.getSelectEndPos()))) {
                         p = p-1;
                     }
                     this.visualCursor = p;
@@ -686,7 +685,8 @@ window.vim_test = (function () {
             var nc = nr - nl;
             var cc = textUtil.getCountFromStartToPosInCurrLine();
             var p = nl + (cc > nc ? nc : cc);
-            if (p < textUtil.getText().length) {
+            var pass = (this.isMode(GENERAL) && p < textUtil.getText().length) || (this.isMode(VISUAL) && p <= textUtil.getText().length)
+            if (pass) {
                 var s = p-1;
                 if (this.isMode(VISUAL)) {
                     s = this.visualPosition;
