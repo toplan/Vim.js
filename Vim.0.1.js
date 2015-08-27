@@ -706,6 +706,9 @@ window.vim = (function () {
                 var s = p-1;
                 if (this.isMode(VISUAL)) {
                     s = this.visualPosition;
+                    if (s > p) {
+                        p = p-1;
+                    }
                     this.visualCursor = p;
                 }
                 textUtil.select(s, p);
@@ -732,7 +735,7 @@ window.vim = (function () {
                 var e = p;
                 if (this.isMode(VISUAL)) {
                     s = this.visualPosition;
-                    if (textUtil.getPrevSymbol(p) != _ENTER_) {
+                    if (textUtil.getPrevSymbol(p) != _ENTER_ && s != p-1 && e < s) {
                         e = p-1;
                     }
                     this.visualCursor = e;
