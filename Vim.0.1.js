@@ -7,13 +7,13 @@
  |
  */
 
-window.vim_test = (function () {
+window.vim = (function () {
 
     const  GENERAL = 'GENERAL_MODE';
     const  EDIT    = 'EDIT_MODE';
     const  COMMAND = 'COMMAND_MODE';
     const  VISUAL  = 'VISUAL_MODE';
-    const  _ENTER_ = "\n";//\r\n
+    const  _ENTER_ = '\n';//\r\n
 
     var config = undefined;
     var vim = undefined;
@@ -22,9 +22,11 @@ window.vim_test = (function () {
     var prevCode = undefined;
     var prevCodeTime = 0;
 
+    var _white_list = [9, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123];
+
     var _special_keys = {
         8:'Backspace',
-        9:'Tab',
+        //9:'Tab',
         13:'Enter',
         27:['Escape', 'switchModeToGeneral'],
         33:'PageUp',
@@ -100,14 +102,18 @@ window.vim_test = (function () {
 
     function _init (conf) {
         config = conf;
-        textUtil = new Text(config.el);
         vim = new Vim();
         _bind();
     }
 
     function _bind() {
-        config.el.onclick = _on_click;
-        config.el.onkeydown = _on_key_down;
+        var boxes = document.querySelectorAll('input, textarea');
+        for (var i = 0;i<boxes.length;i++) {
+            var box = boxes[i];
+            box.onfocus = _on_focus;
+            box.onclick = _on_click;
+            box.onkeydown = _on_key_down;
+        }
         Event.on('reset_cursor_position', function (e) {
             if (vim.isMode(GENERAL) || vim.isMode(VISUAL)) {
                 vim.resetCursorByMouse();
@@ -133,14 +139,24 @@ window.vim_test = (function () {
         });
     }
 
+    function _on_focus() {
+        config.el = this;
+        textUtil = new Text(this);
+        vim.init();
+    }
+
     function _on_click(e) {
         var ev = e || event || window.event;
-        Event.fire('reset_cursor_position', ev)
+        Event.fire('reset_cursor_position', ev);
     }
 
     function _on_key_down(e) {
         var replaced = false;
         var ev = e || event || window.event;
+        var code = ev.keyCode || ev.which || ev.charCode;
+        if (_indexOf(_white_list, code) !== -1) {
+            return true;
+        }
         if (vim.isMode(GENERAL) || vim.isMode(VISUAL)) {
             if (vim.replaceRequest) {
                 replaced = true;
@@ -333,7 +349,6 @@ window.vim_test = (function () {
 
     /**
      * 文本处理器
-     * @param el
      * @constructor
      */
     function Text(el) {
@@ -527,7 +542,7 @@ window.vim_test = (function () {
 
         this.findSymbolAfter = function (p, char) {
             var text = this.getText();
-            for (var i = (p+1); i<text.length; i++) {
+            for (var i = p; i<text.length; i++) {
                 if (text.charAt(i) == char) {
                     return i;
                 }
@@ -561,6 +576,12 @@ window.vim_test = (function () {
         this.visualPosition = undefined;
         this.visualCursor = undefined;
 
+        this.init = function () {
+            this.replaceRequest = false;
+            this.visualPosition = undefined;
+            this.visualCursor = undefined;
+        };
+
         this.isMode = function (modeName) {
             return this.currentMode === modeName
         };
@@ -592,7 +613,7 @@ window.vim_test = (function () {
             if (this.isMode(VISUAL) && textUtil.getNextSymbol(p-1) == _ENTER_) {
                 return;
             }
-            if (p+2 <= textUtil.getText().length) {
+            if (p+1 <= textUtil.getText().length) {
                 var s = p+1;
                 if (this.isMode(VISUAL)) {
                     s = this.visualPosition;
@@ -614,6 +635,7 @@ window.vim_test = (function () {
                     if (f2 > f1 && f2 > f3) {
                         textUtil.select(s, p+1);
                     } else if (f1 == f2 && f2 - f3 == 1) {
+                        textUtil.select(s, p+1);
                         this.visualPosition = f2-1;
                         this.visualCursor = p+2;
                         textUtil.select(s-1, p+2);
@@ -685,8 +707,7 @@ window.vim_test = (function () {
             var nc = nr - nl;
             var cc = textUtil.getCountFromStartToPosInCurrLine();
             var p = nl + (cc > nc ? nc : cc);
-            var pass = (this.isMode(GENERAL) && p < textUtil.getText().length) || (this.isMode(VISUAL) && p <= textUtil.getText().length)
-            if (pass) {
+            if (p < textUtil.getText().length) {
                 var s = p-1;
                 if (this.isMode(VISUAL)) {
                     s = this.visualPosition;
@@ -863,9 +884,7 @@ window.vim_test = (function () {
     };
 
     return {
-        applyTo: function(config){
-            var el = document.getElementById(config.id);
-            config.el = el;
+        open: function(config) {
             _init(config);
         }
     };

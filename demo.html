@@ -6,14 +6,34 @@
 </head>
 <body>
 <div style="width: 100%">
-<textarea id="vimTextArea" rows="60"
-style="background: #333;color: #eee;font-size: 16px;;width:70%;word-break: normal;"> </textarea>
+<input id="input" type="text" style="width: 100%;font-size: 19px;height: 30px;" value="public">
+<br>
+<br>
+<textarea id="vimTextArea" rows="30" style="background: #444;color: #f4f4f4;font-size: 16px;;width:100%;word-break: normal;">
+public static function fetch($url)
+{
+    $filename = md5($url.time());
+    $rel_path = $filename[0].'/'.$filename[15].'/'.$filename['31'];
+    $key = 'attach/images/'.$rel_path.'/'.$filename.'.jpg';
+    if (Util::qiniuFetch($url, $key)) {
+        $data = [];
+        $data['origin_name'] = $url;
+        $data['ext'] = 'jpg';
+        $data['rel_path'] = $rel_path;
+        $data['filename'] = $filename;
+        return self::create($data);
+    } else {
+        return false;
+    }
+}
+//hello world.
+//top lan
+</textarea>
 </div>
 </body>
 <script src="Vim.0.1.js"></script>
 <script type="text/javascript">
-    vim_test.applyTo({
-        id      : "vimTextArea",
+    vim.open({
         msg     : function(msg){
             alert('msg:' + msg);
         }
