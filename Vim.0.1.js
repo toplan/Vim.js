@@ -39,7 +39,7 @@ window.vim = (function () {
         39:['Right', 'selectNextCharacter'],
         40:['Down', 'selectNextLine'],
         45:['Insert', 'insert'],
-        46:['Delete', 'delCharAfter']
+        46:['Delete', 'delCharAfter', true]
     };
     var _vim_keys = {
         //0:move to current line head
@@ -61,10 +61,11 @@ window.vim = (function () {
         79:{
             name:'o',
             o:'appendNewLine',
-            O:'insertNewLine'
+            O:'insertNewLine',
+            record:true
         },
         //replace
-        82:{name:'r', r:'replaceChar', record:true},
+        82:{name:'r', r:'replaceChar'},
         //down
         13:{name:'enter', enter:'selectNextLine'},
         74:{name:'j', j:'selectNextLine'},
@@ -89,7 +90,7 @@ window.vim = (function () {
         //v
         86:{name:'v', v:'switchModeToVisual', V:'switchModeToVisual'},
         //delete character
-        88:{name:'x', x:'delCharAfter', X:'delCharBefore'}
+        88:{name:'x', x:'delCharAfter', X:'delCharBefore', record:true}
     };
 
     function _init (conf) {
@@ -189,6 +190,10 @@ window.vim = (function () {
 
         //special key route
         if (_special_keys[keyCode] !== undefined) {
+            //record
+            if (_special_keys[keyCode][2]) {
+                _record_text();
+            }
             eval(prefix + _special_keys[keyCode][1] + suffix);
             //init number
             _init_number();
