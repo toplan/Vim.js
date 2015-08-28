@@ -21,23 +21,22 @@ window.vim = (function () {
     var clipboard = undefined;
     var prevCode = undefined;
     var prevCodeTime = 0;
+    var number = [];
     var _keycode_white_list = [9, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123];
 
     var _special_keys = {
-        8:'Backspace',
-        //9:'Tab',
-        13:'Enter',
+        //8:'Backspace',
         27:['Escape', 'switchModeToGeneral'],
-        33:'PageUp',
-        34:'PageDown',
-        35:'End',
-        36:'Home',
-        37:'Left',
-        38:'Up',
-        39:'Right',
-        40:'Down',
-        45:'Insert',
-        46:'Delete'
+        //33:'PageUp',
+        //34:'PageDown',
+        //35:'End',
+        //36:'Home',
+        37:['Left', 'selectPrevCharacter'],
+        38:['Up', 'selectPrevLine'],
+        39:['Right', 'selectNextCharacter'],
+        40:['Down', 'selectNextLine'],
+        45:['Insert', 'insert'],
+        46:['Delete', 'delCharAfter']
     };
 
     var _vim_keys = {
@@ -65,6 +64,7 @@ window.vim = (function () {
         //replace
         82:{name:'r', r:'replaceChar'},
         //down
+        13:{name:'enter', enter:'selectNextLine'},
         74:{
             name:'j',
             j:'selectNextLine'
@@ -339,6 +339,7 @@ window.vim = (function () {
         };
         this.delCharAfter = function () {
             vim.deleteSelected();
+            this.switchModeToGeneral()
         }
     }
 
