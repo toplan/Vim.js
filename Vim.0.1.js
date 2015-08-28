@@ -21,16 +21,16 @@ window.vim = (function () {
     var clipboard = undefined;
     var prevCode = undefined;
     var prevCodeTime = 0;
-    var number = [];
-    var _keycode_white_list = [9, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123];
 
+    var _number = '';
+    var _keycode_white_list = [9, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123];
     var _special_keys = {
         //8:'Backspace',
         27:['Escape', 'switchModeToGeneral'],
         //33:'PageUp',
         //34:'PageDown',
-        //35:'End',
-        //36:'Home',
+        35:['End', 'moveToCurrentLineTail'],
+        36:['Home', 'moveToCurrentLineHead'],
         37:['Left', 'selectPrevCharacter'],
         38:['Up', 'selectPrevLine'],
         39:['Right', 'selectNextCharacter'],
@@ -38,7 +38,6 @@ window.vim = (function () {
         45:['Insert', 'insert'],
         46:['Delete', 'delCharAfter']
     };
-
     var _vim_keys = {
         //0:move to current line head
         48:{name:'0', 0:'moveToCurrentLineHead'},
@@ -65,25 +64,13 @@ window.vim = (function () {
         82:{name:'r', r:'replaceChar'},
         //down
         13:{name:'enter', enter:'selectNextLine'},
-        74:{
-            name:'j',
-            j:'selectNextLine'
-        },
+        74:{name:'j', j:'selectNextLine'},
         //up
-        75:{
-            name:'k',
-            k:'selectPrevLine'
-        },
+        75:{name:'k', k:'selectPrevLine'},
         //left
-        72:{
-            name:'h',
-            h:'selectPrevCharacter'
-        },
+        72:{name:'h', h:'selectPrevCharacter'},
         //right
-        76:{
-            name:'l',
-            l:'selectNextCharacter'
-        },
+        76:{name:'l', l:'selectNextCharacter'},
         //paste
         80:{
             name:'p',
@@ -120,17 +107,18 @@ window.vim = (function () {
         });
         Event.on('input', function (ev, replaced) {
             var code = ev.keyCode || ev.which || ev.charCode;
-            log('mode:'+vim.currentMode);
+            _log('mode:'+vim.currentMode);
             if (replaced) {
                 return;
             }
             if (_filter(code)) {
+                var num = _number_manager(code);
                 var unionCode = _is_union_code(code, -1);
                 if (unionCode !== undefined && _vim_keys[unionCode] !== undefined) {
                     code = unionCode;
                 }
-                log('key code:' + code);
-                _route(code, ev);
+                _log('key code:' + code);
+                _route(code, ev, num);
             }
         });
     }
@@ -139,6 +127,7 @@ window.vim = (function () {
         config.el = this;
         textUtil = new Text(this);
         vim.init();
+        _init_number()
     }
 
     function _on_click(e) {
@@ -185,7 +174,7 @@ window.vim = (function () {
         return passed;
     }
 
-    function _route(keyCode, ev) {
+    function _route(keyCode, ev, num) {
         var c = new Controller();
         var param = undefined;
         var prefix = 'c.';
@@ -194,6 +183,8 @@ window.vim = (function () {
         //special key route
         if (_special_keys[keyCode] !== undefined) {
             eval(prefix + _special_keys[keyCode][1] + suffix);
+            //init number
+            _init_number()
         }
 
         //vim key route
@@ -206,11 +197,33 @@ window.vim = (function () {
                     keyName = keyName.toUpperCase();
                 }
             }
-            log(prefix + _vim_keys[keyCode][keyName] + suffix);
+            _log(prefix + _vim_keys[keyCode][keyName] + suffix);
             if (_vim_keys[keyCode][keyName] !== undefined) {
+                param = num;
                 eval(prefix + _vim_keys[keyCode][keyName] + suffix);
+                //init number
+                _init_number()
             }
         }
+    }
+
+    function _number_manager(code) {
+        var num = String.fromCharCode(code);
+        if (!isNaN(num) && num >=0 && num <=9) {
+            _number = _number + '' + num;
+            _log('number:' + _number);
+        } else {
+            var n = _number;
+            _init_number();
+            if (n) {
+                return parseInt(n);
+            }
+        }
+        return undefined;
+    }
+
+    function _init_number() {
+        _number = '';
     }
 
     /**
@@ -219,12 +232,16 @@ window.vim = (function () {
      */
     function Controller() {
 
-        this.selectPrevCharacter = function () {
-            vim.selectPrevCharacter();
+        this.selectPrevCharacter = function (num) {
+            _repeat_action(function(){
+                vim.selectPrevCharacter();
+            }, num);
         };
 
-        this.selectNextCharacter = function () {
-            vim.selectNextCharacter();
+        this.selectNextCharacter = function (num) {
+            _repeat_action(function(){
+                vim.selectNextCharacter();
+            }, num);
         };
 
         this.switchModeToGeneral = function () {
@@ -286,12 +303,16 @@ window.vim = (function () {
             }, 100);
         };
 
-        this.selectNextLine = function () {
-            vim.selectNextLine();
+        this.selectNextLine = function (num) {
+            _repeat_action(function(){
+                vim.selectNextLine();
+            }, num);
         };
 
-        this.selectPrevLine = function () {
-            vim.selectPrevLine();
+        this.selectPrevLine = function (num) {
+            _repeat_action(function(){
+                vim.selectPrevLine();
+            }, num);
         };
 
         this.copyChar = function() {
@@ -337,8 +358,10 @@ window.vim = (function () {
                 vim.switchModeTo(EDIT);
             }, 100);
         };
-        this.delCharAfter = function () {
-            vim.deleteSelected();
+        this.delCharAfter = function (num) {
+            _repeat_action(function(){
+                vim.deleteSelected();
+            }, num);
             this.switchModeToGeneral()
         }
     }
@@ -849,9 +872,22 @@ window.vim = (function () {
         return undefined;
     };
 
-    var log = function (msg) {
+    var _log = function (msg) {
         if (config.debug) {
             console.log(msg);
+        }
+    };
+
+    var _repeat_action = function (action, num) {
+        if (typeof action !== 'function') {
+            return;
+        }
+        if (num === undefined || isNaN(num)) {
+            action.apply();
+        } else {
+            for (var i=0;i<num;i++) {
+                action.apply();
+            }
         }
     };
 
