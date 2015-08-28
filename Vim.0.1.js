@@ -465,9 +465,11 @@ window.vim = (function () {
             this.delete(sp, ep);
         };
 
-        this.getCountFromStartToPosInCurrLine = function() {
-            var p = this.getCursorPosition();
-            var s = this.getCurrLineStartPos();
+        this.getCountFromStartToPosInCurrLine = function(p) {
+            if (p === undefined) {
+                p = this.getCursorPosition();
+            }
+            var s = this.getCurrLineStartPos(p);
             return (p - s) + 1;
         };
 
@@ -706,7 +708,10 @@ window.vim = (function () {
             var nl = textUtil.getNextLineStart(sp);
             var nr = textUtil.getNextLineEnd(sp);
             var nc = nr - nl;
-            var cc = textUtil.getCountFromStartToPosInCurrLine();
+            var cc = textUtil.getCountFromStartToPosInCurrLine(sp);
+            if (this.isMode(VISUAL) && this.visualCursor != undefined && this.visualPosition < this.visualCursor) {
+                cc = cc-1;
+            }
             var p = nl + (cc > nc ? nc : cc);
             if (p < textUtil.getText().length) {
                 var s = p-1;
@@ -716,6 +721,11 @@ window.vim = (function () {
                         p = p-1;
                     }
                     this.visualCursor = p;
+                    if (textUtil.getSymbol(nl) == _ENTER_) {
+                        textUtil.appendText(' ', nl);
+                        p = p+1;
+                        this.visualCursor = p;
+                    }
                 }
                 textUtil.select(s, p);
                 if (this.isMode(GENERAL)) {
@@ -733,7 +743,10 @@ window.vim = (function () {
             }
             var pl = textUtil.getPrevLineStart(sp);
             var pr = textUtil.getPrevLineEnd(sp);
-            var cc = textUtil.getCountFromStartToPosInCurrLine();
+            var cc = textUtil.getCountFromStartToPosInCurrLine(sp);
+            if (this.isMode(VISUAL) && this.visualCursor != undefined && this.visualPosition < this.visualCursor) {
+                cc = cc-1;
+            }
             var pc = pr - pl;
             var p = pl + (cc > pc ? pc : cc);
             if (p >= 0) {
