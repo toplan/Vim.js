@@ -656,7 +656,7 @@ window.vim = (function () {
             var s = p-1;
             if (this.isMode(VISUAL)) {
                 s = this.visualPosition;
-                if (s == textUtil.getCurrLineStartPos() && textUtil.getPrevSymbol(p-1) == _ENTER_) {
+                if (s < p && textUtil.getPrevSymbol(p-1) == _ENTER_) {
                     return;
                 }
                 if (s == p) {
