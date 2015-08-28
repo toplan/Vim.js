@@ -15,10 +15,13 @@ window.vim = (function () {
     const  VISUAL  = 'VISUAL_MODE';
     const  _ENTER_ = '\n';//\r\n
 
+    var boxes = undefined;
     var config = undefined;
     var vim = undefined;
     var textUtil = undefined;
     var clipboard = undefined;
+    var doList = [];
+    var doListLimit = 50;
     var prevCode = undefined;
     var prevCodeTime = 0;
 
@@ -61,7 +64,7 @@ window.vim = (function () {
             O:'insertNewLine'
         },
         //replace
-        82:{name:'r', r:'replaceChar'},
+        82:{name:'r', r:'replaceChar', record:true},
         //down
         13:{name:'enter', enter:'selectNextLine'},
         74:{name:'j', j:'selectNextLine'},
@@ -75,8 +78,11 @@ window.vim = (function () {
         80:{
             name:'p',
             p:'pasteAfter',
-            P:'pasteBefore'
+            P:'pasteBefore',
+            record:true
         },
+        //back
+        85:{name:'u', u:'backToHistory'},
         //copy char
         89:{name:'y', y:'copyChar'},
         '89_89':{name:'yy', yy:'copyCurrentLine'},
@@ -93,7 +99,7 @@ window.vim = (function () {
     }
 
     function _bind() {
-        var boxes = document.querySelectorAll('input, textarea');
+        boxes = document.querySelectorAll('input, textarea');
         for (var i = 0;i<boxes.length;i++) {
             var box = boxes[i];
             box.onfocus = _on_focus;
@@ -109,6 +115,7 @@ window.vim = (function () {
             var code = ev.keyCode || ev.which || ev.charCode;
             _log('mode:'+vim.currentMode);
             if (replaced) {
+                _record_text();
                 return;
             }
             if (_filter(code)) {
@@ -176,7 +183,7 @@ window.vim = (function () {
 
     function _route(keyCode, ev, num) {
         var c = new Controller();
-        var param = undefined;
+        var param = num;
         var prefix = 'c.';
         var suffix = '(param)';
 
@@ -184,7 +191,7 @@ window.vim = (function () {
         if (_special_keys[keyCode] !== undefined) {
             eval(prefix + _special_keys[keyCode][1] + suffix);
             //init number
-            _init_number()
+            _init_number();
         }
 
         //vim key route
@@ -199,10 +206,14 @@ window.vim = (function () {
             }
             _log(prefix + _vim_keys[keyCode][keyName] + suffix);
             if (_vim_keys[keyCode][keyName] !== undefined) {
-                param = num;
+                //record
+                if (_vim_keys[keyCode]['record']) {
+                    _record_text();
+                }
                 eval(prefix + _vim_keys[keyCode][keyName] + suffix);
                 //init number
-                _init_number()
+                _init_number();
+
             }
         }
     }
@@ -224,6 +235,26 @@ window.vim = (function () {
 
     function _init_number() {
         _number = '';
+    }
+
+    function _record_text() {
+        var data = {
+            't':textUtil.getText(),
+            'p':textUtil.getCursorPosition()
+        };
+        var key = _el_key();
+        if (!doList[key]) {
+            doList[key] = [];
+        }
+        if (doList[key].length >= doListLimit) {
+            doList[key].shift();
+        }
+        doList[key].push(data);
+        _log(doList);
+    }
+
+    function _el_key() {
+        return _indexOf(boxes, config.el);
     }
 
     /**
@@ -363,7 +394,10 @@ window.vim = (function () {
                 vim.deleteSelected();
             }, num);
             this.switchModeToGeneral()
-        }
+        };
+        this.backToHistory = function () {
+            vim.backToHistory();
+        };
     }
 
     /**
@@ -850,6 +884,18 @@ window.vim = (function () {
             var sp = textUtil.getCurrLineStartPos();
             var ep = textUtil.getCurrLineEndPos();
             clipboard = textUtil.getText(sp, ep);
+        };
+
+        this.backToHistory = function () {
+            var key = _el_key();
+            var list = doList[key];
+            if (list) {
+                var data = list.pop();
+                if (data !== undefined) {
+                    textUtil.setText(data.t);
+                    textUtil.select(data.p, data.p+1);
+                }
+            }
         }
     }
 
