@@ -90,7 +90,9 @@ window.vim = (function () {
         //v
         86:{name:'v', v:'switchModeToVisual', V:'switchModeToVisual'},
         //delete character
-        88:{name:'x', x:'delCharAfter', X:'delCharBefore', record:true}
+        88:{name:'x', x:'delCharAfter', X:'delCharBefore', record:true},
+        //delete line
+        '68_68':{name:'dd', dd:'delCurrLine', record:true}
     };
 
     function _init (conf) {
@@ -120,12 +122,15 @@ window.vim = (function () {
                 return;
             }
             if (_filter(code)) {
-                var num = _number_manager(code);
                 var unionCode = _is_union_code(code, -1);
                 if (unionCode !== undefined && _vim_keys[unionCode] !== undefined) {
                     code = unionCode;
                 }
                 _log('key code:' + code);
+                if (code != 68 && code != 89) {
+                    //68:d 89:y
+                    var num = _number_manager(code);
+                }
                 _route(code, ev, num);
             }
         });
@@ -401,13 +406,18 @@ window.vim = (function () {
         };
         this.delCharAfter = function (num) {
             _repeat_action(function(){
-                vim.deleteSelected();
+               return vim.deleteSelected();
             }, num);
             this.switchModeToGeneral()
         };
         this.backToHistory = function () {
             vim.backToHistory();
         };
+        this.delCurrLine = function (num) {
+            _repeat_action(function () {
+               return vim.delCurrLine();
+            }, num);
+        }
     }
 
     /**
@@ -524,13 +534,15 @@ window.vim = (function () {
                 var t = this.getText();
                 var nt = t.slice(0, sp) + t.slice(ep);
                 this.setText(nt);
+                return t.slice(sp, ep);
             }
+            return undefined;
         };
 
         this.delSelected = function () {
             var sp = this.getCursorPosition();
             var ep = this.getSelectEndPos();
-            this.delete(sp, ep);
+            return this.delete(sp, ep);
         };
 
         this.getCountFromStartToPosInCurrLine = function(p) {
@@ -552,6 +564,9 @@ window.vim = (function () {
         this.getCurrLineEndPos = function (p) {
             if (p === undefined) {
                 p = this.getCursorPosition();
+            }
+            if (this.getSymbol(p) == _ENTER_) {
+                return p;
             }
             var end = this.findSymbolAfter(p, _ENTER_);
             return end || this.getText().length;
@@ -886,8 +901,9 @@ window.vim = (function () {
 
         this.deleteSelected = function () {
             var p = textUtil.getCursorPosition();
-            textUtil.delSelected();
+            var t = textUtil.delSelected();
             textUtil.select(p, p+1);
+            return t;
         };
 
         this.copyCurrentLine = function () {
@@ -906,6 +922,14 @@ window.vim = (function () {
                     textUtil.select(data.p, data.p+1);
                 }
             }
+        };
+
+        this.delCurrLine = function () {
+            var sp = textUtil.getCurrLineStartPos();
+            var ep = textUtil.getCurrLineEndPos();
+            var t = textUtil.delete(sp, ep+1);
+            textUtil.select(sp, sp+1);
+            return t;
         }
     }
 
@@ -922,7 +946,10 @@ window.vim = (function () {
         var pc = prevCode;
         prevCode = code;
         prevCodeTime = ct;
-        if (maxTime < 0 || ct - pt <= maxTime) {
+        if (pc && (maxTime < 0 || ct - pt <= maxTime)) {
+            if (pc == code) {
+                prevCode = undefined;
+            }
             return pc + '_' + code;
         }
         return undefined;
@@ -938,11 +965,21 @@ window.vim = (function () {
         if (typeof action !== 'function') {
             return;
         }
+        var res = undefined;
         if (num === undefined || isNaN(num)) {
-            action.apply();
+            res = action.apply();
+            if (res) {
+                clipboard = res;
+            }
         } else {
             for (var i=0;i<num;i++) {
-                action.apply();
+                res = action.apply();
+                if (res) {
+                    if (!i) {
+                        clipboard = '';
+                    }
+                    clipboard = clipboard + res;
+                }
             }
         }
     };

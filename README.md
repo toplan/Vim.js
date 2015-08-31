@@ -4,7 +4,6 @@ Simple vim for web textarea/input field, to improve writing experience on web.
 ![demo gif](http://7o503b.com1.z0.glb.clouddn.com/demo.gif)
 
 **Note:**
-
 * This project is in development
 * 一般模式/视图模式中的指令需在英文输入法下输入
 
@@ -55,6 +54,8 @@ Simple vim for web textarea/input field, to improve writing experience on web.
 | nx或n[Delete] | 向后删除个字符 |
 | y            | 复制当前选中字符 |
 | yy           | 复制当前行      |
+| dd           | 删除当前行      |
+| ndd          | 向下删除n行      |
 | p,P          | p向后粘贴，P向前粘贴|
 
 ## 2. switch general mode to edit mode (切换到编辑模式)
