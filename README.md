@@ -3,8 +3,10 @@ Simple vim for web textarea/input field, to improve writing experience on web.
 
 ![demo gif](http://7o503b.com1.z0.glb.clouddn.com/demo.gif)
 
-**Note1:** This project is in development!
-**Note2:** 一般模式/视图模式中的指令需在英文输入法下输入
+**Note:**
+
+* This project is in development
+* 一般模式/视图模式中的指令需在英文输入法下输入
 
 # usage
 
@@ -30,6 +32,8 @@ Simple vim for web textarea/input field, to improve writing experience on web.
 * Chrome  v39
 * Firefox  v34
 * Safari
+
+**Note** Whether to support other browsers still unknown
 
 # supported command
 
