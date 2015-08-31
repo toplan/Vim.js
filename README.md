@@ -1,7 +1,10 @@
 # Vim.js
 Simple vim for web textarea/input field, to improve writing experience on web.
 
-**Note:**This project is in development!
+![demo gif](http://7o503b.com1.z0.glb.clouddn.com/demo.gif)
+
+**Note1:** This project is in development!
+**Note2:** 一般模式/视图模式中的指令需在英文输入法下输入
 
 # usage
 
