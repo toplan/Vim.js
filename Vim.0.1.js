@@ -164,6 +164,11 @@ window.vim = (function () {
                     ev.returnValue = false;
                 }
             }
+        } else {
+            if (code != 27) {
+                var p = textUtil.getCursorPosition();
+                _record_text(undefined, (p-1>=0 ? p-1 : p));
+            }
         }
         Event.fire('input', ev, replaced);
     }
@@ -174,7 +179,8 @@ window.vim = (function () {
             case 229:
                 if (vim.isMode(GENERAL) || vim.isMode(VISUAL)) {
                     passed = false;
-                    config.msg('请将输入法切换到英文输入');
+                    _log('vim指令执行失败，请将输入法切换到英文输入');
+                    config.msg('vim指令执行失败，请将输入法切换到英文输入');
                 }
                 break;
             default : break;
@@ -242,10 +248,12 @@ window.vim = (function () {
         _number = '';
     }
 
-    function _record_text() {
+    function _record_text(t, p) {
+        t = (t === undefined) ? textUtil.getText() : t;
+        p = (p === undefined) ? textUtil.getCursorPosition() : p;
         var data = {
-            't':textUtil.getText(),
-            'p':textUtil.getCursorPosition()
+            't':t,
+            'p':p
         };
         var key = _el_key();
         if (!doList[key]) {
