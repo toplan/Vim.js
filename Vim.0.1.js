@@ -175,15 +175,12 @@ window.vim = (function () {
 
     function _filter(keyCode) {
         var passed = true;
-        switch (keyCode) {
-            case 229:
-                if (vim.isMode(GENERAL) || vim.isMode(VISUAL)) {
-                    passed = false;
-                    _log('vim指令执行失败，请将输入法切换到英文输入');
-                    config.msg('vim指令执行失败，请将输入法切换到英文输入');
-                }
-                break;
-            default : break;
+        if (keyCode == 229) {
+            if (vim.isMode(GENERAL) || vim.isMode(VISUAL)) {
+                passed = false;
+                _log('vim指令执行失败，请将输入法切换到英文输入');
+                config.msg('vim指令执行失败，请将输入法切换到英文输入');
+            }
         }
         return passed;
     }
