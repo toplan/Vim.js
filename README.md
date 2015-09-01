@@ -4,7 +4,7 @@ Simple vim for web textarea/input field, to improve writing experience on web.
 ![demo gif](http://7o503b.com1.z0.glb.clouddn.com/demo.gif)
 
 **Note:**
-* This project is in development
+* This project is in development, there will be some improvements and new features.
 * 一般模式/视图模式中的指令需在英文输入法下输入
 
 # usage
@@ -32,9 +32,9 @@ Simple vim for web textarea/input field, to improve writing experience on web.
 * Firefox  v34
 * Safari
 
-**Note** Whether to support other browsers still unknown
+**Note:** Whether to support other browsers still unknown
 
-# supported command
+# supported features
 
 ## 1. general mode (一般模式)
 |  指令  |        说明             |
@@ -60,7 +60,7 @@ Simple vim for web textarea/input field, to improve writing experience on web.
 | ndd          | 向下删除n行      |
 | p,P          | p向后粘贴，P向前粘贴|
 
-## 2. switch general mode to edit mode (切换到编辑模式)
+## 2. switch to edit mode
 |  指令  |        说明             |
 | ----- | ----------------------- |
 | 进入插入或替换的编辑模式            |
@@ -69,7 +69,7 @@ Simple vim for web textarea/input field, to improve writing experience on web.
 | o,O   | o为在目前光标所在处的下一行处插入新的一行，O为在上一行插入新一行|
 | r     | 替换光标所在的那一个字符    |
 
-## 3. switch general mode to visual mode (切换到视图模式)
+## 3. switch to visual mode
 |  指令  |        说明             |
 | ----- | ----------------------- |
 | v,V   | 切换到视图模式，即多字符选择模式|
