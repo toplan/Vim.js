@@ -92,7 +92,9 @@ window.vim = (function () {
         //delete character
         88:{name:'x', x:'delCharAfter', X:'delCharBefore', record:true},
         //delete line
-        '68_68':{name:'dd', dd:'delCurrLine', record:true}
+        '68_68':{name:'dd', dd:'delCurrLine', record:true},
+        //gg
+        '71_71':{name:'gg', gg:'moveToFirstLine'}
     };
 
     function _init (conf) {
@@ -217,7 +219,7 @@ window.vim = (function () {
                     keyName = keyName.toUpperCase();
                 }
             }
-            _log(prefix + _vim_keys[keyCode][keyName] + suffix);
+            _log(_vim_keys[keyCode][keyName] + suffix);
             if (_vim_keys[keyCode][keyName] !== undefined) {
                 //record
                 if (_vim_keys[keyCode]['record']) {
@@ -299,6 +301,10 @@ window.vim = (function () {
             var p = textUtil.getCursorPosition();
             var sp = textUtil.getCurrLineStartPos();
             if (p === sp) {
+                var c = textUtil.getCurrLineCount();
+                if (!c) {
+                    textUtil.appendText(' ', p);
+                }
                 vim.selectNextCharacter();
                 vim.selectPrevCharacter();
                 if (textUtil.getCurrLineCount() === 1) {
@@ -417,6 +423,9 @@ window.vim = (function () {
             _repeat_action(function () {
                return vim.delCurrLine();
             }, num);
+        };
+        this.moveToFirstLine = function () {
+            vim.moveToFirstLine();
         }
     }
 
@@ -533,6 +542,9 @@ window.vim = (function () {
             if (ep - sp > 0) {
                 var t = this.getText();
                 var nt = t.slice(0, sp) + t.slice(ep);
+                if (!nt) {
+                    nt = ' ';
+                }
                 this.setText(nt);
                 return t.slice(sp, ep);
             }
@@ -623,7 +635,7 @@ window.vim = (function () {
                     return i+1;
                 }
             }
-            return undefined;
+            return 0;
         };
 
         this.findSymbolAfter = function (p, char) {
@@ -633,7 +645,7 @@ window.vim = (function () {
                     return i;
                 }
             }
-            return undefined;
+            return this.getText().length;
         };
 
         this.getSymbol = function (p) {
@@ -648,7 +660,6 @@ window.vim = (function () {
         this.getPrevSymbol = function (p) {
             return this.getSymbol(p-1);
         };
-
     }
 
     /**
@@ -681,7 +692,13 @@ window.vim = (function () {
         this.resetCursorByMouse = function() {
             this.switchModeTo(GENERAL);
             var p = textUtil.getCursorPosition();
-            if (textUtil.getNextSymbol(p-1) !== _ENTER_) {
+            var sp = textUtil.getCurrLineStartPos();
+            var c = textUtil.getCurrLineCount();
+            if (p === sp && !c) {
+                textUtil.appendText(' ', p);
+            }
+            var ns = textUtil.getNextSymbol(p-1);
+            if (ns && ns !== _ENTER_) {
                 textUtil.select(p, p+1);
             } else {
                 textUtil.select(p-1, p);
@@ -721,7 +738,7 @@ window.vim = (function () {
                     if (f2 > f1 && f2 > f3) {
                         textUtil.select(s, p+1);
                     } else if (f1 == f2 && f2 - f3 == 1) {
-                        textUtil.select(s, p+1);
+                        //textUtil.select(s, p+1);
                         this.visualPosition = f2-1;
                         this.visualCursor = p+2;
                         textUtil.select(s-1, p+2);
@@ -796,7 +813,7 @@ window.vim = (function () {
                 cc = cc-1;
             }
             var p = nl + (cc > nc ? nc : cc);
-            if (p < textUtil.getText().length) {
+            if (p <= textUtil.getText().length) {
                 var s = p-1;
                 if (this.isMode(VISUAL)) {
                     s = this.visualPosition;
@@ -930,7 +947,16 @@ window.vim = (function () {
             var t = textUtil.delete(sp, ep+1);
             textUtil.select(sp, sp+1);
             return t;
-        }
+        };
+
+        this.moveToFirstLine = function () {
+            if (this.isMode(GENERAL)) {
+                textUtil.select(0,1);
+            } else if (this.isMode(VISUAL)) {
+                textUtil.select(this.visualPosition, 0);
+                this.visualCursor = 0;
+            }
+        };
     }
 
     var _current_time = function () {
