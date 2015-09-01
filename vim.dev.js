@@ -94,6 +94,7 @@ window.vim = (function () {
         //delete line
         '68_68':{name:'dd', dd:'delCurrLine', record:true},
         //gg
+        71:{name:'g', G:'moveToLastLine'},
         '71_71':{name:'gg', gg:'moveToFirstLine'}
     };
 
@@ -426,6 +427,9 @@ window.vim = (function () {
         };
         this.moveToFirstLine = function () {
             vim.moveToFirstLine();
+        };
+        this.moveToLastLine = function () {
+            vim.moveToLastLine();
         }
     }
 
@@ -825,6 +829,11 @@ window.vim = (function () {
                         textUtil.appendText(' ', nl);
                         p = p+1;
                         this.visualCursor = p;
+                        if (s > p) {
+                            //因为新加了空格符，导致字符总数增加，visual开始位置相应增加
+                            s += 1;
+                            this.visualPosition = s;
+                        }
                     }
                 }
                 textUtil.select(s, p);
@@ -957,6 +966,17 @@ window.vim = (function () {
                 this.visualCursor = 0;
             }
         };
+
+        this.moveToLastLine = function () {
+            var lp = textUtil.getText().length;
+            var sp = textUtil.getCurrLineStartPos(lp-1);
+            if (this.isMode(GENERAL)) {
+                textUtil.select(sp, sp+1);
+            } else if (this.isMode(VISUAL)) {
+                textUtil.select(this.visualPosition, sp+1);
+                this.visualCursor = sp+1;
+            }
+        }
     }
 
     var _current_time = function () {
