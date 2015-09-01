@@ -49,7 +49,8 @@ Simple vim for web textarea/input field, to improve writing experience on web.
 | 如果想进行多次移动，例如向下移动10行，可以使用"10j"，或"10↓"的组合键|
 | 0或功能键[HOME]| 光标移动到当前行的第一个字符处 |
 | $或功能键[End] | 光标移动到当前行的最后一个字符处 |
-| gg            | 光标移动到第一行     |
+| G             | 光标移动到最后一行    |
+| gg            | 光标移动到第一行      |
 |          删除、复制与粘贴:        |
 | x或功能键[Delete] | 向后删除一个字符 |
 | nx或n[Delete] | 向后删除个字符 |

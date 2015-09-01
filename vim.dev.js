@@ -369,6 +369,7 @@ window.vim = (function () {
         };
 
         this.copyChar = function() {
+            vim.parseInNewLineRequest = false;
             clipboard = textUtil.getSelectedText();
             if (vim.isMode(VISUAL)) {
                 this.switchModeToGeneral();
@@ -381,13 +382,23 @@ window.vim = (function () {
 
         this.pasteAfter = function () {
             if (clipboard !== undefined) {
-                textUtil.appendText(clipboard)
+                if(vim.parseInNewLineRequest){
+                    var ep = textUtil.getCurrLineEndPos();
+                    textUtil.appendText(_ENTER_ + clipboard, ep, true);
+                } else {
+                    textUtil.appendText(clipboard, undefined, true)
+                }
             }
         };
 
         this.pasteBefore = function () {
             if (clipboard !== undefined) {
-                textUtil.insertText(clipboard)
+                if(vim.parseInNewLineRequest){
+                    var sp = textUtil.getCurrLineStartPos();
+                    textUtil.insertText(clipboard + _ENTER_, sp, true);
+                } else {
+                    textUtil.insertText(clipboard, undefined, true)
+                }
             }
         };
         this.moveToCurrentLineHead = function () {
@@ -517,24 +528,40 @@ window.vim = (function () {
             }
         };
 
-        this.appendText = function (t, p) {
+        this.appendText = function (t, p, parse) {
             var ot = this.getText();
             if (p === undefined) {
                 p = this.getCursorPosition() + 1;
             }
             var nt = ot.slice(0, p) + t + ot.slice(p, ot.length);
             this.setText(nt);
-            this.select(p, p + t.length);
+            if (parse) {
+                if (vim.parseInNewLineRequest && p) {
+                    this.select(p+1, p+2);
+                } else {
+                    this.select(p+t.length, p+t.length-1);
+                }
+            } else {
+                this.select(p, p + t.length);
+            }
         };
 
-        this.insertText = function (t, p) {
+        this.insertText = function (t, p, parse) {
             var ot = this.getText();
             if (p === undefined) {
                 p = this.getCursorPosition();
             }
             var nt = ot.slice(0, p) + t + ot.slice(p, ot.length);
             this.setText(nt);
-            this.select(p, p + t.length);
+            if (parse) {
+                if (vim.parseInNewLineRequest) {
+                    this.select(p, p+1);
+                } else {
+                    this.select(p+t.length, p+t.length-1);
+                }
+            } else {
+                this.select(p, p + t.length);
+            }
         };
 
         this.delete = function (sp, ep) {
@@ -674,6 +701,7 @@ window.vim = (function () {
 
         this.currentMode = EDIT;
         this.replaceRequest = false;
+        this.parseInNewLineRequest = false;
         this.visualPosition = undefined;
         this.visualCursor = undefined;
 
@@ -936,6 +964,7 @@ window.vim = (function () {
             var sp = textUtil.getCurrLineStartPos();
             var ep = textUtil.getCurrLineEndPos();
             clipboard = textUtil.getText(sp, ep);
+            this.parseInNewLineRequest = true;
         };
 
         this.backToHistory = function () {
@@ -955,6 +984,7 @@ window.vim = (function () {
             var ep = textUtil.getCurrLineEndPos();
             var t = textUtil.delete(sp, ep+1);
             textUtil.select(sp, sp+1);
+            this.parseInNewLineRequest = true;
             return t;
         };
 
