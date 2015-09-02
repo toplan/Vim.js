@@ -29,7 +29,7 @@ Simple vim for web textarea/input field, to improve writing experience on web.
 # supported browser
 
 * Chrome  v39
-* Firefox  v34
+* Firefox  v34, v40
 * Safari
 
 **Note:** Whether to support other browsers still unknown

@@ -155,7 +155,7 @@ window.vim = (function () {
         var replaced = false;
         var ev = e || event || window.event;
         var code = ev.keyCode || ev.which || ev.charCode;
-        if (_indexOf(_keycode_white_list, code) !== -1) {
+        if (_index_of(_keycode_white_list, code) !== -1) {
             return true;
         }
         if (vim.isMode(GENERAL) || vim.isMode(VISUAL)) {
@@ -272,7 +272,7 @@ window.vim = (function () {
     }
 
     function _el_key() {
-        return _indexOf(boxes, config.el);
+        return _index_of(boxes, config.el);
     }
 
     /**
@@ -957,6 +957,7 @@ window.vim = (function () {
             var p = textUtil.getCursorPosition();
             var t = textUtil.delSelected();
             textUtil.select(p, p+1);
+            this.parseInNewLineRequest = false;
             return t;
         };
 
@@ -1060,57 +1061,43 @@ window.vim = (function () {
         }
     };
 
-    //辅组函数，获取数组里某个元素的索引 index
-    var _indexOf = function(array,key){
-        if (array === null) return -1;
+    var _index_of = function(array,key){
+        if (array === null) {
+            return -1
+        }
         var i = 0, length = array.length;
-        for (; i < length; i++) if (array[i] == key) return i;
+        for (; i < length; i++) {
+          if (array[i] == key) {
+              return i;
+          }
+        }
         return -1;
     };
 
     var Event = {
-        //添加监听
         on:function(key,listener){
-            //this.__events存储所有的处理函数
-            if (!this.__events) {
-                this.__events = {}
+            if (!this._events) {
+                this._events = {}
             }
-            if (!this.__events[key]) {
-                this.__events[key] = []
-            }
-            if (_indexOf(this.__events[key], listener) === -1 && typeof listener === 'function') {
-                this.__events[key].push(listener)
+            if (typeof listener === 'function') {
+                this._events[key] = listener
             }
             return this
         },
-        //触发一个事件，也就是通知
         fire:function(key){
-            if (!this.__events || !this.__events[key]) return;
-
+            if (!this._events || !this._events[key]) {
+                return;
+            }
             var args = Array.prototype.slice.call(arguments, 1) || [];
-
-            var listeners = this.__events[key];
-            var i = 0;
-            var l = listeners.length;
-
-            for (i; i < l; i++) {
-                listeners[i].apply(this,args)
-            }
-            return this
+            var listener = this._events[key];
+            listener.apply(this, args);
+            return this;
         },
-        //取消监听
-        off:function(key,listener){
-            if (!key && !listener) {
-                this.__events = {}
-            }
-            //不传监听函数，就去掉当前key下面的所有的监听函数
-            if (key && !listener) {
-                delete this.__events[key]
-            }
-            if (key && listener) {
-                var listeners = this.__events[key]
-                var index = _indexOf(listeners, listener)
-                (index > -1) && listeners.splice(index, 1)
+        off:function(key){
+            if (!key) {
+                this._events = {};
+            } else {
+                delete this._events[key];
             }
             return this;
         }
