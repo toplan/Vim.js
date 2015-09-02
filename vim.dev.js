@@ -1060,6 +1060,8 @@ window.vim = (function () {
         if (num === undefined || isNaN(num)) {
             res = action.apply();
             if (res) {
+                //remove line break char
+                res = res.replace(_ENTER_, '');
                 clipboard = res;
             }
         } else {
@@ -1068,6 +1070,10 @@ window.vim = (function () {
                 if (res) {
                     if (!i) {
                         clipboard = '';
+                    }
+                    if (i == num-1) {
+                        //remove line break char
+                        res = res.replace(_ENTER_, '');
                     }
                     clipboard = clipboard + res;
                 }
