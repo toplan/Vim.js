@@ -8,25 +8,45 @@
  */
 
 window.vim = (function () {
-
+    //vim mode
     const  GENERAL = 'GENERAL_MODE';
     const  EDIT    = 'EDIT_MODE';
     const  COMMAND = 'COMMAND_MODE';
     const  VISUAL  = 'VISUAL_MODE';
-    const  _ENTER_ = '\n';//\r\n
 
+    //char \r\n
+    const  _ENTER_ = '\n';
+
+    //text area / input fields
     var boxes = undefined;
+
+    //config
     var config = undefined;
+
+    //vim instance
     var vim = undefined;
+
+    //text util instance
     var textUtil = undefined;
+
+    //clipboard
     var clipboard = undefined;
+
+    //version history
     var doList = [];
-    var doListLimit = 50;
+    var doListLimit = 100;
+
+    //prev key code
     var prevCode = undefined;
     var prevCodeTime = 0;
 
+    //numerical value
     var _number = '';
+
+    //key code white list
     var _keycode_white_list = [9, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123];
+
+    //system feature key
     var _special_keys = {
         //8:'Backspace',
         27:['Escape', 'switchModeToGeneral'],
@@ -41,29 +61,18 @@ window.vim = (function () {
         45:['Insert', 'insert'],
         46:['Delete', 'delCharAfter', true]
     };
+
+    //vim feature key
     var _vim_keys = {
         //0:move to current line head
         48:{name:'0', 0:'moveToCurrentLineHead'},
         //&:move to current line tail
         52:{name:'4', shift_4:'moveToCurrentLineTail'},
         //append
-        65:{
-            name:'a',
-            a:'append',
-            A:'appendLineTail'
-        },
+        65:{name:'a', a:'append', A:'appendLineTail'},
         //insert
-        73:{
-            name:'i',
-            i:'insert',
-            I:'insertLineHead'
-        },
-        79:{
-            name:'o',
-            o:'appendNewLine',
-            O:'insertNewLine',
-            record:true
-        },
+        73:{name:'i', i:'insert', I:'insertLineHead'},
+        79:{name:'o', o:'appendNewLine', O:'insertNewLine', record:true},
         //replace
         82:{name:'r', r:'replaceChar'},
         //down
@@ -76,12 +85,7 @@ window.vim = (function () {
         //right
         76:{name:'l', l:'selectNextCharacter'},
         //paste
-        80:{
-            name:'p',
-            p:'pasteAfter',
-            P:'pasteBefore',
-            record:true
-        },
+        80:{name:'p', p:'pasteAfter', P:'pasteBefore', record:true},
         //back
         85:{name:'u', u:'backToHistory'},
         //copy char

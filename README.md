@@ -11,10 +11,7 @@ Simple vim for web textarea/input field, to improve writing experience on web.
 
 ```html
 ...
-<input type="text">
-<textarea rows=20></textarea>
-
-<script src="vim.dev.js"></script>
+<script src="/path/to/vim.dev.js"></script>
 <script type="text/javascript">
     vim.open({
         debug : true,
@@ -36,7 +33,7 @@ Simple vim for web textarea/input field, to improve writing experience on web.
 
 # supported features
 
-## 1. general mode (一般模式)
+## 1. general mode
 |  指令  |        说明             |
 | ----- | ----------------------- |
 | Esc   | 由编辑模式切换到一般模式    |
