@@ -89,7 +89,7 @@ window.vim = (function () {
         //back
         85:{name:'u', u:'backToHistory'},
         //copy char
-        89:{name:'y', y:'copyChar'},
+        89:{name:'y', y:'copyChar', mode:VISUAL},
         '89_89':{name:'yy', yy:'copyCurrentLine'},
         //v
         86:{name:'v', v:'switchModeToVisual', V:'switchModeToVisual'},
@@ -216,6 +216,10 @@ window.vim = (function () {
 
         //vim key route
         if (_vim_keys[keyCode] !== undefined && (vim.isMode(GENERAL) || vim.isMode(VISUAL)) ) {
+            var mode = _vim_keys[keyCode]['mode'];
+            if (mode && !vim.isMode(mode)) {
+                return false;
+            }
             var keyName = _vim_keys[keyCode]['name'];
             if (ev.shiftKey) {
                 if (keyName == keyName.toUpperCase()) {
@@ -380,8 +384,13 @@ window.vim = (function () {
             }
         };
 
-        this.copyCurrentLine = function() {
-            vim.copyCurrentLine();
+        this.copyCurrentLine = function(num) {
+            var _data = {p:undefined, t:''};
+            _repeat_action(function () {
+                _data.t = vim.copyCurrentLine(_data.p);
+                _data.p = textUtil.getNextLineStart(_data.p);
+                return _data.t;
+            }, num);
         };
 
         this.pasteAfter = function () {
@@ -965,11 +974,12 @@ window.vim = (function () {
             return t;
         };
 
-        this.copyCurrentLine = function () {
-            var sp = textUtil.getCurrLineStartPos();
-            var ep = textUtil.getCurrLineEndPos();
-            clipboard = textUtil.getText(sp, ep);
+        this.copyCurrentLine = function (p) {
+            var sp = textUtil.getCurrLineStartPos(p);
+            var ep = textUtil.getCurrLineEndPos(p);
+            //clipboard = textUtil.getText(sp, ep);
             this.parseInNewLineRequest = true;
+            return textUtil.getText(sp, ep+1);
         };
 
         this.backToHistory = function () {

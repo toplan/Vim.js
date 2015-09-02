@@ -51,8 +51,8 @@ Simple vim for web textarea/input field, to improve writing experience on web.
 |          删除、复制与粘贴:        |
 | x或功能键[Delete] | 向后删除一个字符 |
 | nx或n[Delete] | 向后删除个字符 |
-| y            | 复制当前选中字符 |
 | yy           | 复制当前行      |
+| nyy          | 向下复制n行     |
 | dd           | 删除当前行      |
 | ndd          | 向下删除n行      |
 | p,P          | p向后粘贴，P向前粘贴|
