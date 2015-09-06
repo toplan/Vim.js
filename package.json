@@ -1,0 +1,17 @@
+{
+  "name": "Vim.js",
+  "version": "1.0.0",
+  "description": "simple vim for web textarea and input",
+  "scripts": {
+    "dev": "webpack --watch",
+    "build": "webpack"
+  },
+  "keywords": [
+    "vim vim.js Vim.js"
+  ],
+  "author": "toplan",
+  "license": "MIT",
+  "dependencies": {
+    "webpack": "~1.12.0"
+  }
+}
