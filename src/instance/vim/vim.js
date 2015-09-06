@@ -18,6 +18,12 @@ exports._init = function (tu) {
     this.visualCursor = undefined;
 };
 
+exports._reset = function() {
+    this.replaceRequest = false;
+    this.visualPosition = undefined;
+    this.visualCursor = undefined;
+}
+
 exports.setTextUtil = function(tu) {
     textUtil = tu;
 }

@@ -4,7 +4,7 @@
 const GENERAL = 'general_mode';
 const VISUAL  = 'visual_mode';
 
-var u = require('./util');
+var u = require('./util/helper.js');
 var filter = require('./filter.js');
 var App;
 
@@ -50,6 +50,7 @@ function onFocus() {
     App.currentEle = this;
     App.textUtil.setEle(this);
     App.vim.setTextUtil(App.textUtil);
+    App.vim._reset();
     App.controller.setVim(App.vim);
     App.controller.setTextUtil(App.textUtil);
     App.initNumber();

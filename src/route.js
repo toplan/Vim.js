@@ -35,6 +35,8 @@ exports.ready = function(router){
     router.code(86, 'v').action('v', 'switchModeToVisual').action('V', 'switchModeToVisual').add();
     //delete character
     router.code(88, 'x').action('x', 'delCharAfter').action('X', 'delCharBefore').record(true).add();
+    //delete selected char in visual mode
+    router.code(68, 'd').action('d', 'delCharAfter').mode('visual_mode').record(true).add();
     //delete line
     router.code('68_68', 'dd').action('dd', 'delCurrLine').record(true).add();
     //gg

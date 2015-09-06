@@ -232,6 +232,12 @@
 	    this.visualCursor = undefined;
 	};
 	
+	exports._reset = function() {
+	    this.replaceRequest = false;
+	    this.visualPosition = undefined;
+	    this.visualCursor = undefined;
+	}
+	
 	exports.setTextUtil = function(tu) {
 	    textUtil = tu;
 	}
@@ -1058,8 +1064,6 @@
 	 * Created by top on 15-9-6.
 	 */
 	const GENERAL = 'general_mode';
-	const COMMAND = 'command_mode';
-	const EDIT    = 'edit_mode';
 	const VISUAL  = 'visual_mode';
 	const _ENTER_ = '\n';
 	
@@ -1336,6 +1340,8 @@
 	    router.code(86, 'v').action('v', 'switchModeToVisual').action('V', 'switchModeToVisual').add();
 	    //delete character
 	    router.code(88, 'x').action('x', 'delCharAfter').action('X', 'delCharBefore').record(true).add();
+	    //delete selected char in visual mode
+	    router.code(68, 'd').action('d', 'delCharAfter').mode('visual_mode').record(true).add();
 	    //delete line
 	    router.code('68_68', 'dd').action('dd', 'delCurrLine').record(true).add();
 	    //gg
@@ -1401,6 +1407,7 @@
 	    App.currentEle = this;
 	    App.textUtil.setEle(this);
 	    App.vim.setTextUtil(App.textUtil);
+	    App.vim._reset();
 	    App.controller.setVim(App.vim);
 	    App.controller.setTextUtil(App.textUtil);
 	    App.initNumber();

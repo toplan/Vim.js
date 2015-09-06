@@ -1,4 +1,4 @@
-var u = require('./util/index.js');
+var u = require('./util/helper.js');
 var extend = u.extend;
 var p;
 

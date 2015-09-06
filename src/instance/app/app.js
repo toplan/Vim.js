@@ -2,12 +2,10 @@
  * Created by top on 15-9-6.
  */
 const GENERAL = 'general_mode';
-const COMMAND = 'command_mode';
-const EDIT    = 'edit_mode';
 const VISUAL  = 'visual_mode';
 const _ENTER_ = '\n';
 
-var u = require('../../util/index.js');
+var u = require('../../util/helper.js');
 var config = require('../../config.js');
 var route = require('../../route.js');
 var bind = require('../../bind.js');
