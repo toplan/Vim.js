@@ -62,8 +62,8 @@
 	 * Vim constructor
 	 * @constructor
 	 */
-	function Vim (app) {
-	    this._init(app);
+	function Vim(textUtil) {
+	    this._init(textUtil);
 	}
 	extend(Vim, __webpack_require__(3));
 	p = Vim.prototype;
@@ -73,8 +73,8 @@
 	 * textUtil constructor
 	 * @constructor
 	 */
-	function textUtil(app) {
-	    this._init(app);
+	function textUtil(element) {
+	    this._init(element);
 	}
 	p = textUtil.prototype;
 	extend(p, __webpack_require__(5));
@@ -221,12 +221,10 @@
 	const VISUAL  = 'visual_mode';
 	const _ENTER_ = '\n';
 	
-	var App;
 	var textUtil;
 	
-	exports._init = function (app) {
-	    App = app;
-	    textUtil = app.textUtil;
+	exports._init = function (tu) {
+	    textUtil = tu;
 	    this.currentMode = EDIT;
 	    this.replaceRequest = false;
 	    this.parseInNewLineRequest = false;
@@ -496,9 +494,7 @@
 	    return textUtil.getText(sp, ep+1);
 	};
 	
-	exports.backToHistory = function () {
-	    var key = App.getEleKey();
-	    var list = App.doList[key];
+	exports.backToHistory = function (list) {
 	    if (list) {
 	        var data = list.pop();
 	        if (data !== undefined) {
@@ -546,15 +542,9 @@
 	 */
 	const _ENTER_ = '\n';
 	var el;
-	var vim;
 	
-	exports._init = function (app) {
-	    el = app.currentEle;
-	    vim = app.vim;
-	}
-	
-	exports.setVim = function(v){
-	    vim = v;
+	exports._init = function (element) {
+	    el = element;
 	}
 	
 	exports.setEle = function(e){
@@ -639,7 +629,7 @@
 	    }
 	};
 	
-	exports.appendText = function (t, p, parse) {
+	exports.appendText = function (t, p, parse, isNewLine) {
 	    var ot = this.getText();
 	    if (p === undefined) {
 	        p = this.getCursorPosition() + 1;
@@ -647,7 +637,7 @@
 	    var nt = ot.slice(0, p) + t + ot.slice(p, ot.length);
 	    this.setText(nt);
 	    if (parse) {
-	        if (vim.parseInNewLineRequest && p) {
+	        if (isNewLine && p) {
 	            this.select(p+1, p+2);
 	        } else {
 	            this.select(p+t.length, p+t.length-1);
@@ -657,7 +647,7 @@
 	    }
 	};
 	
-	exports.insertText = function (t, p, parse) {
+	exports.insertText = function (t, p, parse, isNewLine) {
 	    var ot = this.getText();
 	    if (p === undefined) {
 	        p = this.getCursorPosition();
@@ -665,7 +655,7 @@
 	    var nt = ot.slice(0, p) + t + ot.slice(p, ot.length);
 	    this.setText(nt);
 	    if (parse) {
-	        if (vim.parseInNewLineRequest) {
+	        if (isNewLine) {
 	            this.select(p, p+1);
 	        } else {
 	            this.select(p+t.length, p+t.length-1);
@@ -817,11 +807,13 @@
 	const VISUAL  = 'visual_mode';
 	const _ENTER_ = '\n';
 	
+	var App;
 	var vim;
 	var textUtil;
 	var _repeat_action;
 	
 	exports._init = function (app) {
+	    App = app;
 	    vim = app.vim;
 	    textUtil = app.textUtil;
 	    _repeat_action = app.repeatAction;
@@ -943,9 +935,9 @@
 	    if (clipboard !== undefined) {
 	        if(vim.parseInNewLineRequest){
 	            var ep = textUtil.getCurrLineEndPos();
-	            textUtil.appendText(_ENTER_ + clipboard, ep, true);
+	            textUtil.appendText(_ENTER_ + clipboard, ep, true, true);
 	        } else {
-	            textUtil.appendText(clipboard, undefined, true)
+	            textUtil.appendText(clipboard, undefined, true, false)
 	        }
 	    }
 	};
@@ -954,9 +946,9 @@
 	    if (clipboard !== undefined) {
 	        if(vim.parseInNewLineRequest){
 	            var sp = textUtil.getCurrLineStartPos();
-	            textUtil.insertText(clipboard + _ENTER_, sp, true);
+	            textUtil.insertText(clipboard + _ENTER_, sp, true, true);
 	        } else {
-	            textUtil.insertText(clipboard, undefined, true)
+	            textUtil.insertText(clipboard, undefined, true, false)
 	        }
 	    }
 	};
@@ -995,7 +987,9 @@
 	};
 	
 	exports.backToHistory = function () {
-	    vim.backToHistory();
+	    var key = App.getEleKey();
+	    var list = App.doList[key];
+	    vim.backToHistory(list);
 	};
 	
 	exports.delCurrLine = function (num) {
@@ -1087,8 +1081,8 @@
 	    this.classes = {};
 	
 	    this.router = new Router();
-	    this.textUtil = new textUtil(this);
-	    this.vim = new Vim(this);
+	    this.textUtil = new textUtil(this.currentEle);
+	    this.vim = new Vim(this.textUtil);
 	    this.controller = new Controller(this);
 	
 	    this.classes.Vim = Vim;
@@ -1359,14 +1353,12 @@
 	 * Created by top on 15-9-6.
 	 */
 	const GENERAL = 'general_mode';
-	const COMMAND = 'command_mode';
-	const EDIT    = 'edit_mode';
 	const VISUAL  = 'visual_mode';
-	const _ENTER_ = '\n';
 	
 	var u = __webpack_require__(1);
 	var filter = __webpack_require__(12);
 	var App;
+	
 	exports.listener = function(app) {
 	    App = app;
 	    var boxes = window.document.querySelectorAll('input, textarea');
@@ -1408,12 +1400,9 @@
 	function onFocus() {
 	    App.currentEle = this;
 	    App.textUtil.setEle(this);
-	
 	    App.vim.setTextUtil(App.textUtil);
-	    App.textUtil.setVim(App.vim);
 	    App.controller.setVim(App.vim);
 	    App.controller.setTextUtil(App.textUtil);
-	
 	    App.initNumber();
 	}
 	

@@ -7,11 +7,13 @@ const EDIT    = 'edit_mode';
 const VISUAL  = 'visual_mode';
 const _ENTER_ = '\n';
 
+var App;
 var vim;
 var textUtil;
 var _repeat_action;
 
 exports._init = function (app) {
+    App = app;
     vim = app.vim;
     textUtil = app.textUtil;
     _repeat_action = app.repeatAction;
@@ -133,9 +135,9 @@ exports.pasteAfter = function () {
     if (clipboard !== undefined) {
         if(vim.parseInNewLineRequest){
             var ep = textUtil.getCurrLineEndPos();
-            textUtil.appendText(_ENTER_ + clipboard, ep, true);
+            textUtil.appendText(_ENTER_ + clipboard, ep, true, true);
         } else {
-            textUtil.appendText(clipboard, undefined, true)
+            textUtil.appendText(clipboard, undefined, true, false)
         }
     }
 };
@@ -144,9 +146,9 @@ exports.pasteBefore = function () {
     if (clipboard !== undefined) {
         if(vim.parseInNewLineRequest){
             var sp = textUtil.getCurrLineStartPos();
-            textUtil.insertText(clipboard + _ENTER_, sp, true);
+            textUtil.insertText(clipboard + _ENTER_, sp, true, true);
         } else {
-            textUtil.insertText(clipboard, undefined, true)
+            textUtil.insertText(clipboard, undefined, true, false)
         }
     }
 };
@@ -185,7 +187,9 @@ exports.delCharAfter = function (num) {
 };
 
 exports.backToHistory = function () {
-    vim.backToHistory();
+    var key = App.getEleKey();
+    var list = App.doList[key];
+    vim.backToHistory(list);
 };
 
 exports.delCurrLine = function (num) {

@@ -25,8 +25,8 @@ exports._init = function (options, Router, textUtil, Vim, Controller) {
     this.classes = {};
 
     this.router = new Router();
-    this.textUtil = new textUtil(this);
-    this.vim = new Vim(this);
+    this.textUtil = new textUtil(this.currentEle);
+    this.vim = new Vim(this.textUtil);
     this.controller = new Controller(this);
 
     this.classes.Vim = Vim;

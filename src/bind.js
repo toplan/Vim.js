@@ -2,14 +2,12 @@
  * Created by top on 15-9-6.
  */
 const GENERAL = 'general_mode';
-const COMMAND = 'command_mode';
-const EDIT    = 'edit_mode';
 const VISUAL  = 'visual_mode';
-const _ENTER_ = '\n';
 
 var u = require('./util');
 var filter = require('./filter.js');
 var App;
+
 exports.listener = function(app) {
     App = app;
     var boxes = window.document.querySelectorAll('input, textarea');
@@ -51,12 +49,9 @@ exports.listener = function(app) {
 function onFocus() {
     App.currentEle = this;
     App.textUtil.setEle(this);
-
     App.vim.setTextUtil(App.textUtil);
-    App.textUtil.setVim(App.vim);
     App.controller.setVim(App.vim);
     App.controller.setTextUtil(App.textUtil);
-
     App.initNumber();
 }
 

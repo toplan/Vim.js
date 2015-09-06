@@ -3,15 +3,9 @@
  */
 const _ENTER_ = '\n';
 var el;
-var vim;
 
-exports._init = function (app) {
-    el = app.currentEle;
-    vim = app.vim;
-}
-
-exports.setVim = function(v){
-    vim = v;
+exports._init = function (element) {
+    el = element;
 }
 
 exports.setEle = function(e){
@@ -96,7 +90,7 @@ exports.select = function (start, end) {
     }
 };
 
-exports.appendText = function (t, p, parse) {
+exports.appendText = function (t, p, parse, isNewLine) {
     var ot = this.getText();
     if (p === undefined) {
         p = this.getCursorPosition() + 1;
@@ -104,7 +98,7 @@ exports.appendText = function (t, p, parse) {
     var nt = ot.slice(0, p) + t + ot.slice(p, ot.length);
     this.setText(nt);
     if (parse) {
-        if (vim.parseInNewLineRequest && p) {
+        if (isNewLine && p) {
             this.select(p+1, p+2);
         } else {
             this.select(p+t.length, p+t.length-1);
@@ -114,7 +108,7 @@ exports.appendText = function (t, p, parse) {
     }
 };
 
-exports.insertText = function (t, p, parse) {
+exports.insertText = function (t, p, parse, isNewLine) {
     var ot = this.getText();
     if (p === undefined) {
         p = this.getCursorPosition();
@@ -122,7 +116,7 @@ exports.insertText = function (t, p, parse) {
     var nt = ot.slice(0, p) + t + ot.slice(p, ot.length);
     this.setText(nt);
     if (parse) {
-        if (vim.parseInNewLineRequest) {
+        if (isNewLine) {
             this.select(p, p+1);
         } else {
             this.select(p+t.length, p+t.length-1);

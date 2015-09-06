@@ -7,12 +7,10 @@ const EDIT    = 'edit_mode';
 const VISUAL  = 'visual_mode';
 const _ENTER_ = '\n';
 
-var App;
 var textUtil;
 
-exports._init = function (app) {
-    App = app;
-    textUtil = app.textUtil;
+exports._init = function (tu) {
+    textUtil = tu;
     this.currentMode = EDIT;
     this.replaceRequest = false;
     this.parseInNewLineRequest = false;
@@ -282,9 +280,7 @@ exports.copyCurrentLine = function (p) {
     return textUtil.getText(sp, ep+1);
 };
 
-exports.backToHistory = function () {
-    var key = App.getEleKey();
-    var list = App.doList[key];
+exports.backToHistory = function (list) {
     if (list) {
         var data = list.pop();
         if (data !== undefined) {

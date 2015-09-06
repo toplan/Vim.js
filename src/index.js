@@ -16,8 +16,8 @@ extend(p, require('./instance/router/router.js'));
  * Vim constructor
  * @constructor
  */
-function Vim (app) {
-    this._init(app);
+function Vim(textUtil) {
+    this._init(textUtil);
 }
 extend(Vim, require('./instance/vim/global.js'));
 p = Vim.prototype;
@@ -27,8 +27,8 @@ extend(p, require('./instance/vim/vim.js'));
  * textUtil constructor
  * @constructor
  */
-function textUtil(app) {
-    this._init(app);
+function textUtil(element) {
+    this._init(element);
 }
 p = textUtil.prototype;
 extend(p, require('./instance/text/text.js'));
