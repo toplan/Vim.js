@@ -1,5 +1,5 @@
 {
-  "name": "Vim.js",
+  "name": "vim.js",
   "version": "1.0.0",
   "description": "simple vim for web textarea and input",
   "scripts": {
@@ -9,7 +9,7 @@
   },
   "keywords": [
     "vim",
-    "Vim.js"
+    "vim.js"
   ],
   "author": "toplan",
   "license": "MIT",
