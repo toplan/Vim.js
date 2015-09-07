@@ -35,6 +35,12 @@ exports.vim = undefined;
 exports.textUtil = undefined;
 
 /**
+ * clipboard of app
+ * @type {undefined}
+ */
+exports.clipboard = undefined;
+
+/**
  * app do list
  * @type {Array}
  */

@@ -834,13 +834,11 @@
 	var App;
 	var vim;
 	var textUtil;
-	var _repeat_action;
 	
 	exports._init = function (app) {
 	    App = app;
 	    vim = app.vim;
 	    textUtil = app.textUtil;
-	    _repeat_action = app.repeatAction;
 	}
 	
 	exports.setVim = function(v) {
@@ -852,13 +850,13 @@
 	}
 	
 	exports.selectPrevCharacter = function (num) {
-	    _repeat_action(function(){
+	    App.repeatAction(function(){
 	        vim.selectPrevCharacter();
 	    }, num);
 	};
 	
 	exports.selectNextCharacter = function (num) {
-	    _repeat_action(function(){
+	    App.repeatAction(function(){
 	        vim.selectNextCharacter();
 	    }, num);
 	};
@@ -927,20 +925,20 @@
 	};
 	
 	exports.selectNextLine = function (num) {
-	    _repeat_action(function(){
+	    App.repeatAction(function(){
 	        vim.selectNextLine();
 	    }, num);
 	};
 	
 	exports.selectPrevLine = function (num) {
-	    _repeat_action(function(){
+	    App.repeatAction(function(){
 	        vim.selectPrevLine();
 	    }, num);
 	};
 	
 	exports.copyChar = function() {
 	    vim.pasteInNewLineRequest = false;
-	    clipboard = textUtil.getSelectedText();
+	    App.clipboard = textUtil.getSelectedText();
 	    if (vim.isMode(VISUAL)) {
 	        this.switchModeToGeneral();
 	    }
@@ -948,7 +946,7 @@
 	
 	exports.copyCurrentLine = function(num) {
 	    var _data = {p:undefined, t:''};
-	    _repeat_action(function () {
+	    App.repeatAction(function () {
 	        _data.t = vim.copyCurrentLine(_data.p);
 	        _data.p = textUtil.getNextLineStart(_data.p);
 	        return _data.t;
@@ -956,23 +954,23 @@
 	};
 	
 	exports.pasteAfter = function () {
-	    if (clipboard !== undefined) {
+	    if (App.clipboard !== undefined) {
 	        if(vim.pasteInNewLineRequest){
 	            var ep = textUtil.getCurrLineEndPos();
-	            textUtil.appendText(_ENTER_ + clipboard, ep, true, true);
+	            textUtil.appendText(_ENTER_ + App.clipboard, ep, true, true);
 	        } else {
-	            textUtil.appendText(clipboard, undefined, true, false)
+	            textUtil.appendText(App.clipboard, undefined, true, false)
 	        }
 	    }
 	};
 	
 	exports.pasteBefore = function () {
-	    if (clipboard !== undefined) {
+	    if (App.clipboard !== undefined) {
 	        if(vim.pasteInNewLineRequest){
 	            var sp = textUtil.getCurrLineStartPos();
-	            textUtil.insertText(clipboard + _ENTER_, sp, true, true);
+	            textUtil.insertText(App.clipboard + _ENTER_, sp, true, true);
 	        } else {
-	            textUtil.insertText(clipboard, undefined, true, false)
+	            textUtil.insertText(App.clipboard, undefined, true, false)
 	        }
 	    }
 	};
@@ -1004,7 +1002,7 @@
 	};
 	
 	exports.delCharAfter = function (num) {
-	    _repeat_action(function(){
+	    App.repeatAction(function(){
 	       return vim.deleteSelected();
 	    }, num);
 	    this.switchModeToGeneral()
@@ -1017,7 +1015,7 @@
 	};
 	
 	exports.delCurrLine = function (num) {
-	    _repeat_action(function () {
+	    App.repeatAction(function () {
 	       return vim.delCurrLine();
 	    }, num);
 	};
@@ -1111,25 +1109,19 @@
 	    }
 	    var res = undefined;
 	    if (num === undefined || isNaN(num)) {
+	        num = 1;
+	    }
+	    for (var i=0;i<num;i++) {
 	        res = action.apply();
 	        if (res) {
-	            //remove line break char
-	            res = res.replace(_ENTER_, '');
-	            this.clipboard = res;
-	        }
-	    } else {
-	        for (var i=0;i<num;i++) {
-	            res = action.apply();
-	            if (res) {
-	                if (!i) {
-	                    this.clipboard = '';
-	                }
-	                if (i == num-1) {
-	                    //remove line break char
-	                    res = res.replace(_ENTER_, '');
-	                }
-	                this.clipboard = this.clipboard + res;
+	            if (!i) {
+	                this.clipboard = '';
 	            }
+	            if (i == num-1) {
+	                //remove line break char
+	                res = res.replace(_ENTER_, '');
+	            }
+	            this.clipboard = this.clipboard + res;
 	        }
 	    }
 	}
@@ -1157,6 +1149,11 @@
 	}
 	
 	exports.numberManager = function(code) {
+	    if (code == 68 || code == 89) {
+	        //防止ndd和nyy时候数值计算错误,如当code为68时，
+	        //如果不拦截，则会在后面执行initNumber()，导致dd时无法获取数值
+	        return undefined;
+	    }
 	    var num = String.fromCharCode(code);
 	    if (!isNaN(num) && num >=0 && num <=9) {
 	        this._number = this._number + '' + num;
@@ -1376,10 +1373,7 @@
 	                code = unionCode;
 	            }
 	            App._log('key code:'+code);
-	            if (code != 68 && code != 89) {
-	                //防止dd和yy时候计算错误
-	                var num = App.numberManager(code);
-	            }
+	            var num = App.numberManager(code);
 	            App.parseRoute(code, ev, num);
 	        }
 	    });
@@ -1435,7 +1429,7 @@
 	}
 	
 	function getCode(ev) {
-	    var e = ev || event || window.event;
+	    var e = getEvent(ev);
 	    return e.keyCode || e.which || e.charCode;
 	}
 
@@ -1504,6 +1498,12 @@
 	 * @type {undefined}
 	 */
 	exports.textUtil = undefined;
+	
+	/**
+	 * clipboard of app
+	 * @type {undefined}
+	 */
+	exports.clipboard = undefined;
 	
 	/**
 	 * app do list

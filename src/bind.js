@@ -37,10 +37,7 @@ exports.listen = function(app) {
                 code = unionCode;
             }
             App._log('key code:'+code);
-            if (code != 68 && code != 89) {
-                //防止dd和yy时候计算错误
-                var num = App.numberManager(code);
-            }
+            var num = App.numberManager(code);
             App.parseRoute(code, ev, num);
         }
     });
@@ -96,6 +93,6 @@ function getEvent(e) {
 }
 
 function getCode(ev) {
-    var e = ev || event || window.event;
+    var e = getEvent(ev);
     return e.keyCode || e.which || e.charCode;
 }

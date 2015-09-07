@@ -10,13 +10,11 @@ const _ENTER_ = '\n';
 var App;
 var vim;
 var textUtil;
-var _repeat_action;
 
 exports._init = function (app) {
     App = app;
     vim = app.vim;
     textUtil = app.textUtil;
-    _repeat_action = app.repeatAction;
 }
 
 exports.setVim = function(v) {
@@ -28,13 +26,13 @@ exports.setTextUtil = function(tu) {
 }
 
 exports.selectPrevCharacter = function (num) {
-    _repeat_action(function(){
+    App.repeatAction(function(){
         vim.selectPrevCharacter();
     }, num);
 };
 
 exports.selectNextCharacter = function (num) {
-    _repeat_action(function(){
+    App.repeatAction(function(){
         vim.selectNextCharacter();
     }, num);
 };
@@ -103,20 +101,20 @@ exports.insert = function() {
 };
 
 exports.selectNextLine = function (num) {
-    _repeat_action(function(){
+    App.repeatAction(function(){
         vim.selectNextLine();
     }, num);
 };
 
 exports.selectPrevLine = function (num) {
-    _repeat_action(function(){
+    App.repeatAction(function(){
         vim.selectPrevLine();
     }, num);
 };
 
 exports.copyChar = function() {
     vim.pasteInNewLineRequest = false;
-    clipboard = textUtil.getSelectedText();
+    App.clipboard = textUtil.getSelectedText();
     if (vim.isMode(VISUAL)) {
         this.switchModeToGeneral();
     }
@@ -124,7 +122,7 @@ exports.copyChar = function() {
 
 exports.copyCurrentLine = function(num) {
     var _data = {p:undefined, t:''};
-    _repeat_action(function () {
+    App.repeatAction(function () {
         _data.t = vim.copyCurrentLine(_data.p);
         _data.p = textUtil.getNextLineStart(_data.p);
         return _data.t;
@@ -132,23 +130,23 @@ exports.copyCurrentLine = function(num) {
 };
 
 exports.pasteAfter = function () {
-    if (clipboard !== undefined) {
+    if (App.clipboard !== undefined) {
         if(vim.pasteInNewLineRequest){
             var ep = textUtil.getCurrLineEndPos();
-            textUtil.appendText(_ENTER_ + clipboard, ep, true, true);
+            textUtil.appendText(_ENTER_ + App.clipboard, ep, true, true);
         } else {
-            textUtil.appendText(clipboard, undefined, true, false)
+            textUtil.appendText(App.clipboard, undefined, true, false)
         }
     }
 };
 
 exports.pasteBefore = function () {
-    if (clipboard !== undefined) {
+    if (App.clipboard !== undefined) {
         if(vim.pasteInNewLineRequest){
             var sp = textUtil.getCurrLineStartPos();
-            textUtil.insertText(clipboard + _ENTER_, sp, true, true);
+            textUtil.insertText(App.clipboard + _ENTER_, sp, true, true);
         } else {
-            textUtil.insertText(clipboard, undefined, true, false)
+            textUtil.insertText(App.clipboard, undefined, true, false)
         }
     }
 };
@@ -180,7 +178,7 @@ exports.insertNewLine = function () {
 };
 
 exports.delCharAfter = function (num) {
-    _repeat_action(function(){
+    App.repeatAction(function(){
        return vim.deleteSelected();
     }, num);
     this.switchModeToGeneral()
@@ -193,7 +191,7 @@ exports.backToHistory = function () {
 };
 
 exports.delCurrLine = function (num) {
-    _repeat_action(function () {
+    App.repeatAction(function () {
        return vim.delCurrLine();
     }, num);
 };

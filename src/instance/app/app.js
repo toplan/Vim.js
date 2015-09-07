@@ -74,25 +74,19 @@ exports.repeatAction = function(action, num) {
     }
     var res = undefined;
     if (num === undefined || isNaN(num)) {
+        num = 1;
+    }
+    for (var i=0;i<num;i++) {
         res = action.apply();
         if (res) {
-            //remove line break char
-            res = res.replace(_ENTER_, '');
-            this.clipboard = res;
-        }
-    } else {
-        for (var i=0;i<num;i++) {
-            res = action.apply();
-            if (res) {
-                if (!i) {
-                    this.clipboard = '';
-                }
-                if (i == num-1) {
-                    //remove line break char
-                    res = res.replace(_ENTER_, '');
-                }
-                this.clipboard = this.clipboard + res;
+            if (!i) {
+                this.clipboard = '';
             }
+            if (i == num-1) {
+                //remove line break char
+                res = res.replace(_ENTER_, '');
+            }
+            this.clipboard = this.clipboard + res;
         }
     }
 }
@@ -120,6 +114,11 @@ exports.getEleKey = function() {
 }
 
 exports.numberManager = function(code) {
+    if (code == 68 || code == 89) {
+        //防止ndd和nyy时候数值计算错误,如当code为68时，
+        //如果不拦截，则会在后面执行initNumber()，导致dd时无法获取数值
+        return undefined;
+    }
     var num = String.fromCharCode(code);
     if (!isNaN(num) && num >=0 && num <=9) {
         this._number = this._number + '' + num;
