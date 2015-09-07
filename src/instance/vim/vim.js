@@ -272,7 +272,7 @@ exports.deleteSelected = function () {
     var p = textUtil.getCursorPosition();
     var t = textUtil.delSelected();
     textUtil.select(p, p+1);
-    this.parseInNewLineRequest = false;
+    this.pasteInNewLineRequest = false;
     return t;
 };
 
@@ -280,7 +280,7 @@ exports.copyCurrentLine = function (p) {
     var sp = textUtil.getCurrLineStartPos(p);
     var ep = textUtil.getCurrLineEndPos(p);
     //clipboard = textUtil.getText(sp, ep);
-    this.parseInNewLineRequest = true;
+    this.pasteInNewLineRequest= true;
     return textUtil.getText(sp, ep+1);
 };
 
@@ -299,7 +299,7 @@ exports.delCurrLine = function () {
     var ep = textUtil.getCurrLineEndPos();
     var t = textUtil.delete(sp, ep+1);
     textUtil.select(sp, sp+1);
-    this.parseInNewLineRequest = true;
+    this.pasteInNewLineRequest = true;
     return t;
 };
 

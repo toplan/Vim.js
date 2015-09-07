@@ -204,8 +204,8 @@ exports.class = function (name, fn) {
 
 exports.createClass = function(name, arg) {
     var fn = this.classes[name];
-    if (!fn || typeof fn !== 'function') {
-        throw new Error('class '+name+' not find');
+    if (typeof fn !== 'function') {
+        throw new Error('class '+name+' not define');
     }
     return new fn(arg);
 }

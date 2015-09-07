@@ -472,7 +472,7 @@
 	    var p = textUtil.getCursorPosition();
 	    var t = textUtil.delSelected();
 	    textUtil.select(p, p+1);
-	    this.parseInNewLineRequest = false;
+	    this.pasteInNewLineRequest = false;
 	    return t;
 	};
 	
@@ -480,7 +480,7 @@
 	    var sp = textUtil.getCurrLineStartPos(p);
 	    var ep = textUtil.getCurrLineEndPos(p);
 	    //clipboard = textUtil.getText(sp, ep);
-	    this.parseInNewLineRequest = true;
+	    this.pasteInNewLineRequest= true;
 	    return textUtil.getText(sp, ep+1);
 	};
 	
@@ -499,7 +499,7 @@
 	    var ep = textUtil.getCurrLineEndPos();
 	    var t = textUtil.delete(sp, ep+1);
 	    textUtil.select(sp, sp+1);
-	    this.parseInNewLineRequest = true;
+	    this.pasteInNewLineRequest = true;
 	    return t;
 	};
 	
@@ -527,15 +527,34 @@
 /* 4 */
 /***/ function(module, exports) {
 
-	
+	/**
+	 * default mode
+	 * @type {string}
+	 */
 	exports.currentMode = 'edit_mode';
 	
+	/**
+	 * whether the request to replace a character
+	 * @type {boolean}
+	 */
 	exports.replaceRequest = false;
 	
-	exports.parseInNewLineRequest = false;
+	/**
+	 * whether the request to paste characters in new line
+	 * @type {boolean}
+	 */
+	exports.pasteInNewLineRequest = false;
 	
+	/**
+	 * the starting position of selected text (visual mode)
+	 * @type {undefined}
+	 */
 	exports.visualPosition = undefined;
 	
+	/**
+	 * the end position of selected text (visual mode)
+	 * @type {undefined}
+	 */
 	exports.visualCursor = undefined;
 
 /***/ },
@@ -920,7 +939,7 @@
 	};
 	
 	exports.copyChar = function() {
-	    vim.parseInNewLineRequest = false;
+	    vim.pasteInNewLineRequest = false;
 	    clipboard = textUtil.getSelectedText();
 	    if (vim.isMode(VISUAL)) {
 	        this.switchModeToGeneral();
@@ -938,7 +957,7 @@
 	
 	exports.pasteAfter = function () {
 	    if (clipboard !== undefined) {
-	        if(vim.parseInNewLineRequest){
+	        if(vim.pasteInNewLineRequest){
 	            var ep = textUtil.getCurrLineEndPos();
 	            textUtil.appendText(_ENTER_ + clipboard, ep, true, true);
 	        } else {
@@ -949,7 +968,7 @@
 	
 	exports.pasteBefore = function () {
 	    if (clipboard !== undefined) {
-	        if(vim.parseInNewLineRequest){
+	        if(vim.pasteInNewLineRequest){
 	            var sp = textUtil.getCurrLineStartPos();
 	            textUtil.insertText(clipboard + _ENTER_, sp, true, true);
 	        } else {
@@ -1222,8 +1241,8 @@
 	
 	exports.createClass = function(name, arg) {
 	    var fn = this.classes[name];
-	    if (!fn || typeof fn !== 'function') {
-	        throw new Error('class '+name+' not find');
+	    if (typeof fn !== 'function') {
+	        throw new Error('class '+name+' not define');
 	    }
 	    return new fn(arg);
 	}
@@ -1255,8 +1274,8 @@
 	    },
 	
 	    /**
-	     * key code white list for vim general and visual mode,
-	     * they are enable in general and visual mode
+	     * key codes white list of vim,
+	     * they are effective in general and visual mode
 	     */
 	    key_code_white_list: [9, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123]
 	}
@@ -1457,7 +1476,7 @@
 	exports.currentEle = undefined;
 	
 	/**
-	 * all element for vim
+	 * elements of vim.js app
 	 * @type {undefined}
 	 */
 	exports.boxes = undefined;
@@ -1468,23 +1487,57 @@
 	 */
 	exports.config = undefined;
 	
+	/**
+	 * Router instance
+	 * @type {undefined}
+	 */
+	exports.router = undefined;
+	
+	/**
+	 * Vim instance
+	 * @type {undefined}
+	 */
 	exports.vim = undefined;
 	
+	/**
+	 * TextUtil instance
+	 * @type {undefined}
+	 */
 	exports.textUtil = undefined;
 	
-	exports.clipboard = undefined;
-	
+	/**
+	 * app do list
+	 * @type {Array}
+	 */
 	exports.doList = [];
+	
+	/**
+	 * app do list deep
+	 * @type {number}
+	 */
 	exports.doListDeep = 100;
 	
+	/**
+	 * previous key code
+	 * @type {undefined}
+	 */
 	exports.prevCode = undefined;
+	
 	exports.prevCodeTime = 0;
 	
+	/**
+	 * numerical for vim command
+	 * @type {string}
+	 * @private
+	 */
 	exports._number = '';
 	
+	/**
+	 * key codes white list of vim
+	 * @type {Array}
+	 */
 	exports.key_code_white_list = [];
 	
-	exports.router = undefined;
 
 
 /***/ }

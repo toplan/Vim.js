@@ -19,8 +19,8 @@ module.exports = {
     },
 
     /**
-     * key code white list for vim general and visual mode,
-     * they are enable in general and visual mode
+     * key codes white list of vim,
+     * they are effective in general and visual mode
      */
     key_code_white_list: [9, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123]
 }

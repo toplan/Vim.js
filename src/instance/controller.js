@@ -115,7 +115,7 @@ exports.selectPrevLine = function (num) {
 };
 
 exports.copyChar = function() {
-    vim.parseInNewLineRequest = false;
+    vim.pasteInNewLineRequest = false;
     clipboard = textUtil.getSelectedText();
     if (vim.isMode(VISUAL)) {
         this.switchModeToGeneral();
@@ -133,7 +133,7 @@ exports.copyCurrentLine = function(num) {
 
 exports.pasteAfter = function () {
     if (clipboard !== undefined) {
-        if(vim.parseInNewLineRequest){
+        if(vim.pasteInNewLineRequest){
             var ep = textUtil.getCurrLineEndPos();
             textUtil.appendText(_ENTER_ + clipboard, ep, true, true);
         } else {
@@ -144,7 +144,7 @@ exports.pasteAfter = function () {
 
 exports.pasteBefore = function () {
     if (clipboard !== undefined) {
-        if(vim.parseInNewLineRequest){
+        if(vim.pasteInNewLineRequest){
             var sp = textUtil.getCurrLineStartPos();
             textUtil.insertText(clipboard + _ENTER_, sp, true, true);
         } else {
