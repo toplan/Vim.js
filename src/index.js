@@ -1,5 +1,5 @@
-var u = require('./util/helper.js');
-var extend = u.extend;
+var _ = require('./util/helper.js');
+var extend = _.extend;
 var p;
 
 /**
@@ -19,7 +19,6 @@ extend(p, require('./instance/router/router.js'));
 function Vim(textUtil) {
     this._init(textUtil);
 }
-extend(Vim, require('./instance/vim/global.js'));
 p = Vim.prototype;
 extend(p, require('./instance/vim/vim.js'));
 
@@ -27,10 +26,10 @@ extend(p, require('./instance/vim/vim.js'));
  * textUtil constructor
  * @constructor
  */
-function textUtil(element) {
+function TextUtil(element) {
     this._init(element);
 }
-p = textUtil.prototype;
+p = TextUtil.prototype;
 extend(p, require('./instance/text/text.js'));
 
 /**
@@ -48,12 +47,14 @@ extend(p, require('./instance/controller.js'));
  * @constructor
  */
 function App (options) {
-    this._init(options, Router, textUtil, Vim, Controller)
-        .start();
+    this._init(options)
 }
-extend(App, require('./instance/app/global.js'));
 p = App.prototype;
 extend(p, require('./instance/app/app.js'));
+p.class('Router', Router);
+p.class('Vim', Vim);
+p.class('TextUtil', TextUtil);
+p.class('Controller', Controller);
 
 /**
  * define vim

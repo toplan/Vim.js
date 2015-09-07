@@ -44,8 +44,8 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var u = __webpack_require__(1);
-	var extend = u.extend;
+	var _ = __webpack_require__(1);
+	var extend = _.extend;
 	var p;
 	
 	/**
@@ -65,18 +65,17 @@
 	function Vim(textUtil) {
 	    this._init(textUtil);
 	}
-	extend(Vim, __webpack_require__(3));
 	p = Vim.prototype;
-	extend(p, __webpack_require__(4));
+	extend(p, __webpack_require__(3));
 	
 	/**
 	 * textUtil constructor
 	 * @constructor
 	 */
-	function textUtil(element) {
+	function TextUtil(element) {
 	    this._init(element);
 	}
-	p = textUtil.prototype;
+	p = TextUtil.prototype;
 	extend(p, __webpack_require__(5));
 	
 	/**
@@ -94,12 +93,14 @@
 	 * @constructor
 	 */
 	function App (options) {
-	    this._init(options, Router, textUtil, Vim, Controller)
-	        .start();
+	    this._init(options)
 	}
-	extend(App, __webpack_require__(7));
 	p = App.prototype;
-	extend(p, __webpack_require__(8));
+	extend(p, __webpack_require__(7));
+	p.class('Router', Router);
+	p.class('Vim', Vim);
+	p.class('TextUtil', TextUtil);
+	p.class('Controller', Controller);
 	
 	/**
 	 * define vim
@@ -133,6 +134,10 @@
 	        }
 	    }
 	    return -1;
+	}
+	
+	exports.currentTime = function () {
+	    return new Date().getTime();
 	}
 
 
@@ -191,22 +196,7 @@
 
 /***/ },
 /* 3 */
-/***/ function(module, exports) {
-
-	
-	exports.currentMode = 'edit_mode';
-	
-	exports.replaceRequest = false;
-	
-	exports.parseInNewLineRequest = false;
-	
-	exports.visualPosition = undefined;
-	
-	exports.visualCursor = undefined;
-
-/***/ },
-/* 4 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	/**
 	 * Created by top on 15-9-6.
@@ -217,18 +207,16 @@
 	const VISUAL  = 'visual_mode';
 	const _ENTER_ = '\n';
 	
+	var _ = __webpack_require__(1);
+	var extend = _.extend;
 	var textUtil;
 	
 	exports._init = function (tu) {
+	    extend(this, __webpack_require__(4));
 	    textUtil = tu;
-	    this.currentMode = EDIT;
-	    this.replaceRequest = false;
-	    this.parseInNewLineRequest = false;
-	    this.visualPosition = undefined;
-	    this.visualCursor = undefined;
 	};
 	
-	exports._reset = function() {
+	exports.resetVim = function() {
 	    this.replaceRequest = false;
 	    this.visualPosition = undefined;
 	    this.visualCursor = undefined;
@@ -534,6 +522,21 @@
 	        this.visualCursor = sp+1;
 	    }
 	}
+
+/***/ },
+/* 4 */
+/***/ function(module, exports) {
+
+	
+	exports.currentMode = 'edit_mode';
+	
+	exports.replaceRequest = false;
+	
+	exports.parseInNewLineRequest = false;
+	
+	exports.visualPosition = undefined;
+	
+	exports.visualCursor = undefined;
 
 /***/ },
 /* 5 */
@@ -1011,49 +1014,6 @@
 
 /***/ },
 /* 7 */
-/***/ function(module, exports) {
-
-	/**
-	 * current element
-	 * @type {undefined}
-	 */
-	exports.currentEle = undefined;
-	
-	/**
-	 * all element for vim
-	 * @type {undefined}
-	 */
-	exports.boxes = undefined;
-	
-	/**
-	 * app config
-	 * @type {undefined}
-	 */
-	exports.config = undefined;
-	
-	exports.vim = undefined;
-	
-	exports.textUtil = undefined;
-	
-	exports.clipboard = undefined;
-	
-	exports.doList = [];
-	exports.doListDeep = 100;
-	
-	exports.prevCode = undefined;
-	exports.prevCodeTime = 0;
-	
-	exports._number = '';
-	
-	exports.key_code_white_list = [];
-	
-	exports.router = undefined;
-	
-	exports.classes = {};
-
-
-/***/ },
-/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -1063,37 +1023,30 @@
 	const VISUAL  = 'visual_mode';
 	const _ENTER_ = '\n';
 	
-	var u = __webpack_require__(1);
-	var config = __webpack_require__(9);
-	var route = __webpack_require__(10);
-	var bind = __webpack_require__(11);
-	var extend = u.extend;
+	var _ = __webpack_require__(1);
+	var config = __webpack_require__(8);
+	var route = __webpack_require__(9);
+	var bind = __webpack_require__(10);
+	var extend = _.extend;
 	
-	exports._init = function (options, Router, textUtil, Vim, Controller) {
+	exports.classes = {}
+	
+	exports._init = function (options) {
+	    extend(this, __webpack_require__(12));
+	
 	    this.config = extend(config, options);
 	    this.key_code_white_list = config.key_code_white_list;
-	    this.doList = [];
-	    this.doListDeep = 100;
-	    this.prevCode = undefined;
-	    this.prevCodeTime = 0;
-	    this._number = '';
-	    this.clipboard = ' ';
-	    this.classes = {};
 	
-	    this.router = new Router();
-	    this.textUtil = new textUtil(this.currentEle);
-	    this.vim = new Vim(this.textUtil);
-	    this.controller = new Controller(this);
-	
-	    this.classes.Vim = Vim;
-	    this.classes.textUtil = textUtil;
-	    this.classes.controller = Controller;
+	    this.router = this.createClass('Router');
+	    this.textUtil = this.createClass('TextUtil', this.currentEle);
+	    this.vim = this.createClass('Vim', this.textUtil);
+	    this.controller = this.createClass('Controller', this);
 	
 	    this._log(this);
-	    return this;
+	    this._start();
 	}
 	
-	exports.start = function () {
+	exports._start = function () {
 	    this._route();
 	    this._bind();
 	}
@@ -1103,7 +1056,7 @@
 	}
 	
 	exports._bind = function() {
-	    bind.listener(this);
+	    bind.listen(this);
 	}
 	
 	exports._on = function (event, fn) {
@@ -1181,7 +1134,7 @@
 	}
 	
 	exports.getEleKey = function() {
-	    return u.indexOf(this.boxes, this.currentEle);
+	    return _.indexOf(this.boxes, this.currentEle);
 	}
 	
 	exports.numberManager = function(code) {
@@ -1203,15 +1156,11 @@
 	    this._number = '';
 	}
 	
-	exports.currentTime = function () {
-	    return new Date().getTime();
-	}
-	
 	exports.isUnionCode = function (code, maxTime) {
 	    if (maxTime === undefined) {
 	        maxTime = 600;
 	    }
-	    var ct = this.currentTime();
+	    var ct = _.currentTime();
 	    var pt = this.prevCodeTime;
 	    var pc = this.prevCode;
 	    this.prevCode = code;
@@ -1225,7 +1174,7 @@
 	    return undefined;
 	}
 	
-	exports.route = function(code, ev, num) {
+	exports.parseRoute = function(code, ev, num) {
 	    var c = this.controller;
 	    var param = num;
 	    var prefix = 'c.';
@@ -1261,10 +1210,28 @@
 	    }
 	}
 	
+	exports.class = function (name, fn) {
+	    if (!name) {
+	        throw new Error('first param is required');
+	    }
+	    if (typeof fn !== 'function') {
+	        throw new Error('second param must be a function');
+	    }
+	    this.classes[name] = fn;
+	}
+	
+	exports.createClass = function(name, arg) {
+	    var fn = this.classes[name];
+	    if (!fn || typeof fn !== 'function') {
+	        throw new Error('class '+name+' not find');
+	    }
+	    return new fn(arg);
+	}
+	
 
 
 /***/ },
-/* 9 */
+/* 8 */
 /***/ function(module, exports) {
 
 	/**
@@ -1296,7 +1263,7 @@
 
 
 /***/ },
-/* 10 */
+/* 9 */
 /***/ function(module, exports) {
 
 	/**
@@ -1348,7 +1315,7 @@
 
 
 /***/ },
-/* 11 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -1357,11 +1324,11 @@
 	const GENERAL = 'general_mode';
 	const VISUAL  = 'visual_mode';
 	
-	var u = __webpack_require__(1);
-	var filter = __webpack_require__(12);
+	var _ = __webpack_require__(1);
+	var filter = __webpack_require__(11);
 	var App;
 	
-	exports.listener = function(app) {
+	exports.listen = function(app) {
 	    App = app;
 	    var boxes = window.document.querySelectorAll('input, textarea');
 	    App.boxes = boxes;
@@ -1394,7 +1361,7 @@
 	                //防止dd和yy时候计算错误
 	                var num = App.numberManager(code);
 	            }
-	            App.route(code, ev, num);
+	            App.parseRoute(code, ev, num);
 	        }
 	    });
 	}
@@ -1403,7 +1370,7 @@
 	    App.currentEle = this;
 	    App.textUtil.setEle(this);
 	    App.vim.setTextUtil(App.textUtil);
-	    App.vim._reset();
+	    App.vim.resetVim();
 	    App.controller.setVim(App.vim);
 	    App.controller.setTextUtil(App.textUtil);
 	    App.initNumber();
@@ -1418,7 +1385,7 @@
 	    var replaced = false;
 	    var ev = getEvent(e);
 	    var code = getCode(e);
-	    if (u.indexOf(App.key_code_white_list, code) !== -1) {
+	    if (_.indexOf(App.key_code_white_list, code) !== -1) {
 	        return;
 	    }
 	    if (App.vim.isMode(GENERAL) || App.vim.isMode(VISUAL)) {
@@ -1455,7 +1422,7 @@
 
 
 /***/ },
-/* 12 */
+/* 11 */
 /***/ function(module, exports) {
 
 	/**
@@ -1477,6 +1444,47 @@
 	    }
 	    return passed;
 	}
+
+
+/***/ },
+/* 12 */
+/***/ function(module, exports) {
+
+	/**
+	 * current element
+	 * @type {undefined}
+	 */
+	exports.currentEle = undefined;
+	
+	/**
+	 * all element for vim
+	 * @type {undefined}
+	 */
+	exports.boxes = undefined;
+	
+	/**
+	 * app config
+	 * @type {undefined}
+	 */
+	exports.config = undefined;
+	
+	exports.vim = undefined;
+	
+	exports.textUtil = undefined;
+	
+	exports.clipboard = undefined;
+	
+	exports.doList = [];
+	exports.doListDeep = 100;
+	
+	exports.prevCode = undefined;
+	exports.prevCodeTime = 0;
+	
+	exports._number = '';
+	
+	exports.key_code_white_list = [];
+	
+	exports.router = undefined;
 
 
 /***/ }

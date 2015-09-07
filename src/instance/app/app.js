@@ -5,37 +5,30 @@ const GENERAL = 'general_mode';
 const VISUAL  = 'visual_mode';
 const _ENTER_ = '\n';
 
-var u = require('../../util/helper.js');
+var _ = require('../../util/helper.js');
 var config = require('../../config.js');
 var route = require('../../route.js');
 var bind = require('../../bind.js');
-var extend = u.extend;
+var extend = _.extend;
 
-exports._init = function (options, Router, textUtil, Vim, Controller) {
+exports.classes = {}
+
+exports._init = function (options) {
+    extend(this, require('./init.js'));
+
     this.config = extend(config, options);
     this.key_code_white_list = config.key_code_white_list;
-    this.doList = [];
-    this.doListDeep = 100;
-    this.prevCode = undefined;
-    this.prevCodeTime = 0;
-    this._number = '';
-    this.clipboard = ' ';
-    this.classes = {};
 
-    this.router = new Router();
-    this.textUtil = new textUtil(this.currentEle);
-    this.vim = new Vim(this.textUtil);
-    this.controller = new Controller(this);
-
-    this.classes.Vim = Vim;
-    this.classes.textUtil = textUtil;
-    this.classes.controller = Controller;
+    this.router = this.createClass('Router');
+    this.textUtil = this.createClass('TextUtil', this.currentEle);
+    this.vim = this.createClass('Vim', this.textUtil);
+    this.controller = this.createClass('Controller', this);
 
     this._log(this);
-    return this;
+    this._start();
 }
 
-exports.start = function () {
+exports._start = function () {
     this._route();
     this._bind();
 }
@@ -45,7 +38,7 @@ exports._route = function () {
 }
 
 exports._bind = function() {
-    bind.listener(this);
+    bind.listen(this);
 }
 
 exports._on = function (event, fn) {
@@ -123,7 +116,7 @@ exports.recordText = function(t, p) {
 }
 
 exports.getEleKey = function() {
-    return u.indexOf(this.boxes, this.currentEle);
+    return _.indexOf(this.boxes, this.currentEle);
 }
 
 exports.numberManager = function(code) {
@@ -145,15 +138,11 @@ exports.initNumber = function() {
     this._number = '';
 }
 
-exports.currentTime = function () {
-    return new Date().getTime();
-}
-
 exports.isUnionCode = function (code, maxTime) {
     if (maxTime === undefined) {
         maxTime = 600;
     }
-    var ct = this.currentTime();
+    var ct = _.currentTime();
     var pt = this.prevCodeTime;
     var pc = this.prevCode;
     this.prevCode = code;
@@ -167,7 +156,7 @@ exports.isUnionCode = function (code, maxTime) {
     return undefined;
 }
 
-exports.route = function(code, ev, num) {
+exports.parseRoute = function(code, ev, num) {
     var c = this.controller;
     var param = num;
     var prefix = 'c.';
@@ -201,5 +190,23 @@ exports.route = function(code, ev, num) {
             this.initNumber();
         }
     }
+}
+
+exports.class = function (name, fn) {
+    if (!name) {
+        throw new Error('first param is required');
+    }
+    if (typeof fn !== 'function') {
+        throw new Error('second param must be a function');
+    }
+    this.classes[name] = fn;
+}
+
+exports.createClass = function(name, arg) {
+    var fn = this.classes[name];
+    if (!fn || typeof fn !== 'function') {
+        throw new Error('class '+name+' not find');
+    }
+    return new fn(arg);
 }
 

@@ -33,5 +33,3 @@ exports._number = '';
 exports.key_code_white_list = [];
 
 exports.router = undefined;
-
-exports.classes = {};

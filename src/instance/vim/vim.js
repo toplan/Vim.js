@@ -7,18 +7,16 @@ const EDIT    = 'edit_mode';
 const VISUAL  = 'visual_mode';
 const _ENTER_ = '\n';
 
+var _ = require('../../util/helper.js');
+var extend = _.extend;
 var textUtil;
 
 exports._init = function (tu) {
+    extend(this, require('./init.js'));
     textUtil = tu;
-    this.currentMode = EDIT;
-    this.replaceRequest = false;
-    this.parseInNewLineRequest = false;
-    this.visualPosition = undefined;
-    this.visualCursor = undefined;
 };
 
-exports._reset = function() {
+exports.resetVim = function() {
     this.replaceRequest = false;
     this.visualPosition = undefined;
     this.visualCursor = undefined;

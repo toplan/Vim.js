@@ -17,3 +17,7 @@ exports.indexOf = function (array, key) {
     }
     return -1;
 }
+
+exports.currentTime = function () {
+    return new Date().getTime();
+}
