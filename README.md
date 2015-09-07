@@ -10,7 +10,6 @@ Simple vim for web textarea and input field, to improve writing experience on we
 # usage
 
 ```html
-...
 <script src="/path/to/vim.js"></script>
 <script type="text/javascript">
     vim.open({
@@ -20,10 +19,13 @@ Simple vim for web textarea and input field, to improve writing experience on we
         }
     });
 </script>
-...
 ```
-# Building
+
+# building
 ```
+//install
+npm install vim.js
+
 //watch
 npm run dev
 
