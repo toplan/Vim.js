@@ -1,8 +1,7 @@
 var path = require("path");
-
 module.exports = {
     entry: {
-        script: './src/index.js'
+        script: "./src/index.js"
     },
     output: {
         path: path.resolve("./build"),

@@ -1,5 +1,5 @@
 # Vim.js
-Simple vim for web textarea/input field, to improve writing experience on web.
+Simple vim for web textarea and input field, to improve writing experience on web.
 
 ![demo gif](http://7o503b.com1.z0.glb.clouddn.com/demo.gif)
 
@@ -11,18 +11,29 @@ Simple vim for web textarea/input field, to improve writing experience on web.
 
 ```html
 ...
-<script src="/path/to/vim.dev.js"></script>
+<script src="/path/to/vim.js"></script>
 <script type="text/javascript">
     vim.open({
-        debug : true,
-        msg   : function(msg){
+        debug   : true,
+        showMsg : function(msg){
             alert('vim.js say:' + msg);
         }
     });
 </script>
 ...
-
 ```
+# Building
+```
+//watch
+npm run dev
+
+//build
+npm run build
+
+//build min js file
+npm run build_min
+```
+
 # supported browser
 
 * Chrome  v39
@@ -71,4 +82,4 @@ Simple vim for web textarea/input field, to improve writing experience on web.
 | ----- | ----------------------- |
 | v,V   | 切换到视图模式，即多字符选择模式|
 | y     | 复制选中的所有字符         |
-| x     | 删除选中的所有字符         |
+| x,d   | 删除选中的所有字符         |

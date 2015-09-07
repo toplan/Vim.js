@@ -4,10 +4,12 @@
   "description": "simple vim for web textarea and input",
   "scripts": {
     "dev": "webpack --watch",
-    "build": "webpack"
+    "build": "webpack",
+    "build_min": "webpack --config webpack.min.config.js"
   },
   "keywords": [
-    "vim vim.js Vim.js"
+    "vim",
+    "Vim.js"
   ],
   "author": "toplan",
   "license": "MIT",
