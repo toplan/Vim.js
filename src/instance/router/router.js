@@ -42,10 +42,6 @@ exports.record = function(isRecord) {
     return this;
 }
 
-exports.add = function () {
-    this.currentCode = undefined;
-}
-
 exports.getKeys = function() {
     return this._keys;
 }
