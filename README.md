@@ -1,4 +1,4 @@
-# Vim.js
+# Intro
 Simple vim for web textarea and input field, to improve writing experience on web.
 
 ![demo gif](http://7o503b.com1.z0.glb.clouddn.com/demo.gif)
@@ -7,7 +7,7 @@ Simple vim for web textarea and input field, to improve writing experience on we
 * This project is in development, there will be some improvements and new features.
 * 一般模式/视图模式中的指令需在英文输入法下输入
 
-# usage
+# Usage
 
 ```html
 <script src="/path/to/vim.js"></script>
@@ -21,7 +21,7 @@ Simple vim for web textarea and input field, to improve writing experience on we
 </script>
 ```
 
-# building
+# Building
 ```
 //install
 npm install vim.js
@@ -36,7 +36,7 @@ npm run build
 npm run build_min
 ```
 
-# supported browser
+# Supported browser
 
 * Chrome  v39
 * Firefox  v34, v40
@@ -44,7 +44,7 @@ npm run build_min
 
 **Note:** Whether to support other browsers still unknown
 
-# supported features
+# Supported features
 
 ## 1. general mode
 |  指令  |        说明             |
