@@ -1287,6 +1287,24 @@
 	 */
 	
 	exports.ready = function(router){
+	
+	    //---------------------------
+	    //system feature keys:
+	    //---------------------------
+	
+	    router.code(35, 'End').action('End', 'moveToCurrentLineTail');
+	    router.code(36, 'Home').action('Home', 'moveToCurrentLineHead');
+	    router.code(37, 'Left').action('Left', 'selectPrevCharacter');
+	    router.code(38, 'Up').action('Up', 'selectPrevLine');
+	    router.code(39, 'Right').action('Right', 'selectNextCharacter');
+	    router.code(40, 'Down').action('Down', 'selectNextLine');
+	    router.code(45, 'Insert').action('Insert', 'insert');
+	    router.code(46, 'Delete').action('Delete', 'delCharAfter').record(true);
+	
+	    //---------------------------
+	    //vim feature keys:
+	    //---------------------------
+	
 	    //0:move to current line head
 	    router.code(48, '0').action(0, 'moveToCurrentLineHead');
 	    //&:move to current line tail
