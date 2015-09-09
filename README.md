@@ -1,12 +1,21 @@
 # Intro
-Simple vim for web textarea and input field, to improve writing experience on web.
+
+Simple vim for web `textarea` and `input` field, to improve writing experience on web.
+It is like writing with vim users with smooth writing experience and efficient web-side
+without the need to install any browser plug-ins.
+
+**Note:**
+
+* This project is not to replace powerful IDEs on web pages,
+  but rather as a web side writing(such as blogging, writing notes, ect.) of enhancements.
+
+* This project is in development, there will be some improvements and new features.
+
+* The vim command should used in english input method.
 
 ![demo gif](http://7o503b.com1.z0.glb.clouddn.com/demo.gif)
 
-**Note:**
-* This project is in development, there will be some improvements and new features.
-* 一般模式/视图模式中的指令需在英文输入法下输入
-
+[中文文档](https://github.com/toplan/Vim.js/blob/master-dev/README_CN.md)
 # Usage
 
 ```html
@@ -41,47 +50,46 @@ npm run build_min
 * Chrome  v39
 * Firefox  v34, v40
 * Safari
-
 **Note:** Whether to support other browsers still unknown
 
 # Supported features
 
 ## 1. general mode
-|  指令  |        说明             |
+|  Command |    Description |
 | ----- | ----------------------- |
-| Esc   | 由编辑模式切换到一般模式    |
-| u     | 复原前一个操作，支持多个文本域/输入框独立复原|
-|          移动光标:               |
-| h或左箭头键(←) | 光标向左移动一个字符   |
-| j或下箭头键(↓) | 光标向下移动一个字符   |
-| k或上箭头键(↑) | 光标向上移动一个字符   |
-| l或右箭头键(→) | 光标向右移动一个字符   |
-| 如果想进行多次移动，例如向下移动10行，可以使用"10j"，或"10↓"的组合键|
-| 0或功能键[HOME]| 光标移动到当前行的第一个字符处 |
-| $或功能键[End] | 光标移动到当前行的最后一个字符处 |
-| G             | 光标移动到最后一行    |
-| gg            | 光标移动到第一行      |
-|          删除、复制与粘贴:        |
-| x或功能键[Delete] | 向后删除一个字符 |
-| nx或n[Delete] | 向后删除个字符 |
-| yy           | 复制当前行      |
-| nyy          | 向下复制n行     |
-| dd           | 删除当前行      |
-| ndd          | 向下删除n行      |
-| p,P          | p向后粘贴，P向前粘贴|
+| Esc   | switch to general mode  |
+| u     | returned to the previous operation, support multiple text field independent recovery/input box |
+| Move the cursor :               |
+| h or ← | move left one character |
+| j or ↓ | move down one line     |
+| k or ↑ | move up one line       |
+| l or → | move right one character |
+| supported nh,nj,nk,nl           |
+| 0 or [HOME]| move to head of line |
+| $ or [End] | move to end of line |
+| G          | go to end |
+| gg         | go to first line |
+| delete, copy and paste:        |
+| x or [Delete] | delete single character |
+| nx or n[Delete] | delete `n` characters |
+| yy         | copy current line |
+| nyy        | copy `n` lines    |
+| dd         | delete current line |
+| ndd        | delete `n` lines  |
+| p,P        | `p` paste after，`P` paste before|
 
-## 2. switch to edit mode
-|  指令  |        说明             |
+## 2. edit mode
+|  Command |    Description  |
 | ----- | ----------------------- |
-| 进入插入或替换的编辑模式            |
-| i     | 从目前光标所在出插入       |
-| a     | 从目前光标所在的下一个字符处出插入|
-| o,O   | o为在目前光标所在处的下一行处插入新的一行，O为在上一行插入新一行|
-| r     | 替换光标所在的那一个字符    |
+| i     | insert |
+| a     | append |
+| o     | open line below and enter edit mode |
+| O     | open line after and enter edit mode |
+| r     | replace one character |
 
-## 3. switch to visual mode
-|  指令  |        说明             |
-| ----- | ----------------------- |
-| v,V   | 切换到视图模式，即多字符选择模式|
-| y     | 复制选中的所有字符         |
-| x,d   | 删除选中的所有字符         |
+## 3. visual mode
+|  Command |    Description |
+| -----  | ----------------------- |
+| v or V | switch ot visual mode   |
+| y      | copy the selected text  |
+| x or d | delete the selected text|

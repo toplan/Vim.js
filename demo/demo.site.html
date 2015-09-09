@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>vim.js by toplan</title>
+    <style type="text/css">
+        @media screen {
+            ::selection{color:#fff !important;background:#34495e !important;;}
+            ::-moz-selection{color:#fff !important;;background:#34495e !important;;}
+            ::-webkit-selection{color:#fff !important;;background:#34495e !important;;}
+        }
+        body {background: #eceff1;font-size: 16px;font-family: Microsoft YaHei, WenQuanYi Micro Hei, tohoma, sans-serif;
+            margin: 0;padding:0 30px 30px 30px;color: #34495e;
+        }
+        .box{margin-right: auto;margin-left: auto;width: 870px;}
+        .top{}
+        .header{margin-right: auto;margin-left: auto;height: 100px;}
+        .header p{margin:0; padding: 15px; font-size: 40px;letter-spacing: 2px;}
+        .wrapper{margin-right: auto;margin-left: auto;}
+        .row{width: 100%;margin-top: 15px;}
+        .wrapper .input{width: 846px;color: #34495e;border: 2px solid transparent;font-size: 18px;padding: 15px 10px;border-radius: 5px;}
+        .text-light-green {color: #1abc9c}
+        .text-italic{font-style: italic;}
+        .about{text-align: center;margin-top: 30px;}
+        .mr-10{margin-right: 10px;}
+        a{color: #34495e;}
+        a:hover{color: #1abc9c;}
+    </style>
+</head>
+<body>
+<div class="box">
+<div class="top">
+    <p align="right">
+        <a href="https://github.com/toplan/Vim.js" target="_blank">GitHub</a>
+    </p>
+</div>
+<div class="header">
+<p align="center"><b>vim<span class="text-light-green">.</span>js</b></p>
+</div>
+<div class="wrapper">
+    <div class="row">
+        <input class="input" type="text" value="Welcome to vim.js">
+    </div>
+    <div class="row">
+<textarea rows="30" class="input">The MIT License (MIT)
+
+Copyright (c) (top lan)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+</textarea>
+    </div>
+    <div class="row">
+        <div class="about">
+            <span class="mr-10">by <a href="https://github.com/toplan">Top lan</a></span>
+            <span class="mr-10"><a href="https://github.com/toplan/Vim.js">Fork me</a></span>
+            <span class="mr-10"><a href="https://github.com/toplan/Vim.js">Star me</a></span>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+<script src="../build/vim.js"></script>
+<script type="text/javascript">
+    vim.open({
+        debug : true
+    });
+</script>
+</html>
