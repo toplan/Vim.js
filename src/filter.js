@@ -11,8 +11,9 @@ exports.code = function (App, code) {
     if (code == 229) {
         if (App.vim.isMode(GENERAL) || App.vim.isMode(VISUAL)) {
             passed = false;
-            App._log('vim指令执行失败，请将输入法切换到英文输入');
-            App.config.showMsg('vim指令执行失败，请将输入法切换到英文输入');
+            var msg = 'Execution failure! Please use the vim instructions in the English input method.';
+            App._log(msg);
+            App.config.showMsg(msg);
         }
     }
     return passed;

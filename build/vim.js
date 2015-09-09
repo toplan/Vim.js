@@ -1042,7 +1042,7 @@
 	
 	var _ = __webpack_require__(1);
 	var config = __webpack_require__(8);
-	var route = __webpack_require__(9);
+	var routes = __webpack_require__(9);
 	var bind = __webpack_require__(10);
 	var extend = _.extend;
 	
@@ -1069,7 +1069,7 @@
 	}
 	
 	exports._route = function () {
-	    route.ready(this.router);
+	    routes.ready(this.router);
 	}
 	
 	exports._bind = function() {
@@ -1469,8 +1469,9 @@
 	    if (code == 229) {
 	        if (App.vim.isMode(GENERAL) || App.vim.isMode(VISUAL)) {
 	            passed = false;
-	            App._log('vim指令执行失败，请将输入法切换到英文输入');
-	            App.config.showMsg('vim指令执行失败，请将输入法切换到英文输入');
+	            var msg = 'Execution failure! Please use the vim instructions in the English input method.';
+	            App._log(msg);
+	            App.config.showMsg(msg);
 	        }
 	    }
 	    return passed;

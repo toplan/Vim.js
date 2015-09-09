@@ -7,7 +7,7 @@ const _ENTER_ = '\n';
 
 var _ = require('../../util/helper.js');
 var config = require('../../config.js');
-var route = require('../../route.js');
+var routes = require('../../routes.js');
 var bind = require('../../bind.js');
 var extend = _.extend;
 
@@ -34,7 +34,7 @@ exports._start = function () {
 }
 
 exports._route = function () {
-    route.ready(this.router);
+    routes.ready(this.router);
 }
 
 exports._bind = function() {
