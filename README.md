@@ -4,6 +4,8 @@ Simple vim for web `textarea` and `input` field, to improve writing experience o
 It is like writing with vim users with smooth writing experience and efficient web-side
 without the need to install any browser plug-ins.
 
+[Demo here](http://toplan.github.io/vimjs/index.html)
+
 **Note:**
 
 * This project is not to replace powerful IDEs on web pages,
@@ -45,14 +47,15 @@ npm run build
 npm run build_min
 ```
 
-# Supported browser
+# Browser support
 
 * Chrome  v39
 * Firefox  v34, v40
 * Safari
+
 **Note:** Whether to support other browsers still unknown
 
-# Supported features
+# Features
 
 ## 1. general mode
 |  Command |    Description |
