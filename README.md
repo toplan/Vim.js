@@ -1,8 +1,6 @@
 # Intro
 
-Simple vim for web `textarea` and `input` field, to improve writing experience on web.
-It is like writing with vim users with smooth writing experience and efficient web-side
-without the need to install any browser plug-ins.
+Simple and lightweight Vim for web `textarea` and `input` field, to improve writing experience on web,
 
 [Demo here](http://toplan.github.io/vimjs/index.html)
 
@@ -13,12 +11,15 @@ without the need to install any browser plug-ins.
 
 * This project is in development, there will be some improvements and new features.
 
-* The vim command should used in english input method.
+* Please use the vim instructions in the English input method.
 
 ![demo gif](http://7o503b.com1.z0.glb.clouddn.com/demo.gif)
 
 [中文文档](https://github.com/toplan/Vim.js/blob/master-dev/README_CN.md)
+
 # Usage
+
+The `vim.min.js` only 19kb, and no any dependencies.
 
 ```html
 <script src="/path/to/vim.js"></script>
@@ -61,7 +62,7 @@ npm run build_min
 |  Command |    Description |
 | ----- | ----------------------- |
 | Esc   | switch to general mode  |
-| u     | returned to the previous operation, support multiple text field independent recovery/input box |
+| u     | returned to the previous operation |
 | Move the cursor :               |
 | h or ← | move left one character |
 | j or ↓ | move down one line     |
