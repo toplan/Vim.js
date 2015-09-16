@@ -1,6 +1,6 @@
 # Intro
 
-Simple and lightweight Vim for web `textarea` and `input` field, to improve writing experience on web,
+Simple and lightweight Vim for web `textarea` and `input` field, to improve writing experience on web.
 
 [Demo here](http://toplan.github.io/vimjs/index.html)
 

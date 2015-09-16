@@ -1,6 +1,6 @@
 # 关于
 
-`vim.js`是为网页端的`textarea`和`input`文本输入框打造的简易vim书写扩展功能，
+`vim.js`是为网页端的`textarea`和`input`文本输入框打造的轻量级的简易vim书写扩展，
 为喜欢用vim书写的用户在无需安装任何浏览器插件的情况下提供流畅高效的网页端书写体验。
 
 [Demo here](http://toplan.github.io/vimjs/index.html)

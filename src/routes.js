@@ -57,8 +57,10 @@ exports.ready = function(router){
     router.code(68, 'd').action('d', 'delCharAfter').mode('visual_mode').record(true);
     //delete line
     router.code('68_68', 'dd').action('dd', 'delCurrLine').record(true);
-    //gg
-    router.code(71, 'g').action('G', 'moveToLastLine');
     //G
+    router.code(71, 'g').action('G', 'moveToLastLine');
+    //gg
     router.code('71_71', 'gg').action('gg', 'moveToFirstLine');
+    //w
+    router.code(87, 'w').action('w', 'moveToNextWord');
 }

@@ -202,4 +202,8 @@ exports.moveToFirstLine = function () {
 
 exports.moveToLastLine = function () {
     vim.moveToLastLine();
+};
+
+exports.moveToNextWord = function () {
+    textUtil.getNextWordPos();
 }

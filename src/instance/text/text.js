@@ -231,11 +231,18 @@ exports.findSymbolBefore = function (p, char) {
     return 0;
 };
 
-exports.findSymbolAfter = function (p, char) {
+exports.findSymbolAfter = function (p, char, char2) {
     var text = this.getText();
+    var pattern = new RegExp(char);
+    //And conditions
+    var andPattern = char2 ? new RegExp(char2) : false;
     for (var i = p; i<text.length; i++) {
-        if (text.charAt(i) == char) {
-            return i;
+        if (pattern.test(text.charAt(i))) {
+            if (!andPattern) {
+                return i;
+            } else if (andPattern.test(text.charAt(i))) {
+                return i;
+            }
         }
     }
     return this.getText().length;
@@ -252,4 +259,41 @@ exports.getNextSymbol = function (p) {
 
 exports.getPrevSymbol = function (p) {
     return this.getSymbol(p-1);
+};
+
+//testing...
+exports.getNextWordPos = function (p) {
+    p = p || this.getCursorPosition();
+
+    //current character
+    var char = this.getSymbol(p);
+    console.log(p);
+
+    //current character type
+    var patternStr;
+    if (/[\w|\u4e00-\u9fa5]/.test(char)) {
+        patternStr = "[^\\w\u4e00-\u9fa5]";
+        console.log('word')
+    } else if (/\W/.test(char) && /\S/.test(char)) {
+        patternStr = "[\\w\u4e00-\u9fa5]";
+        console.log('symbol')
+    }
+
+    //find current word`s last character
+    var lastCharPos;
+    if (patternStr) {
+        var lcp2 = this.findSymbolAfter(p, ' ');//space symbol
+        lastCharPos = this.findSymbolAfter(p, patternStr, '\\S');
+        console.log('空格：'+lcp2);
+        console.log('lastCharPost：'+lastCharPos);
+        lastCharPos = lastCharPos - p < lcp2 - p ? lastCharPos : lcp2+1;
+    } else {
+        lastCharPos = this.findSymbolAfter(p, '\\S');//any visible symbol
+    }
+    var lastChar = this.getSymbol(lastCharPos);
+    console.log('word end:'+lastChar);
+
+    if (lastCharPos) {
+        this.select(lastCharPos, lastCharPos+1);
+    }
 };
