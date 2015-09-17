@@ -81,6 +81,7 @@ npm run build_min
 | dd         | delete current line |
 | ndd        | delete `n` lines  |
 | p,P        | `p` paste after，`P` paste before|
+| w or W     | move to next word |
 
 ## 2. edit mode
 |  Command |    Description  |

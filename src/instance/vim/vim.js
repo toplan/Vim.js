@@ -321,4 +321,18 @@ exports.moveToLastLine = function () {
         textUtil.select(this.visualPosition, sp+1);
         this.visualCursor = sp+1;
     }
-}
+};
+
+exports.moveToNextWord = function () {
+    var poses = textUtil.getCurrWordPos(this.visualCursor);
+    //poses[1] is next word`s start position
+    var sp = poses[1];
+    if (sp) {
+        if (this.isMode(GENERAL)) {
+            textUtil.select(sp, sp + 1);
+        } else if (this.isMode(VISUAL)) {
+            textUtil.select(this.visualPosition, sp+1);
+            this.visualCursor = sp+1;
+        }
+    }
+};

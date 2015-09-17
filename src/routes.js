@@ -62,5 +62,5 @@ exports.ready = function(router){
     //gg
     router.code('71_71', 'gg').action('gg', 'moveToFirstLine');
     //w
-    router.code(87, 'w').action('w', 'moveToNextWord');
+    router.code(87, 'w').action('w', 'moveToNextWord').action('W', 'moveToNextWord');
 }

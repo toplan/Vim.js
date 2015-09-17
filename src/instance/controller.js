@@ -204,6 +204,8 @@ exports.moveToLastLine = function () {
     vim.moveToLastLine();
 };
 
-exports.moveToNextWord = function () {
-    textUtil.getNextWordPos();
-}
+exports.moveToNextWord = function (num) {
+    App.repeatAction(function(){
+        vim.moveToNextWord();
+    }, num);
+};

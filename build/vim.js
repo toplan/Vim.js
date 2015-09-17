@@ -521,7 +521,21 @@
 	        textUtil.select(this.visualPosition, sp+1);
 	        this.visualCursor = sp+1;
 	    }
-	}
+	};
+	
+	exports.moveToNextWord = function () {
+	    var poses = textUtil.getCurrWordPos(this.visualCursor);
+	    //poses[1] is next word`s start position
+	    var sp = poses[1];
+	    if (sp) {
+	        if (this.isMode(GENERAL)) {
+	            textUtil.select(sp, sp + 1);
+	        } else if (this.isMode(VISUAL)) {
+	            textUtil.select(this.visualPosition, sp+1);
+	            this.visualCursor = sp+1;
+	        }
+	    }
+	};
 
 /***/ },
 /* 4 */
@@ -825,14 +839,13 @@
 	};
 	
 	//testing...
-	exports.getNextWordPos = function (p) {
+	exports.getCurrWordPos = function (p) {
 	    p = p || this.getCursorPosition();
 	
 	    //current character
 	    var char = this.getSymbol(p);
-	    console.log(p);
 	
-	    //current character type
+	    //parse current character type
 	    var patternStr;
 	    if (/[\w|\u4e00-\u9fa5]/.test(char)) {
 	        patternStr = "[^\\w\u4e00-\u9fa5]";
@@ -842,23 +855,27 @@
 	        console.log('symbol')
 	    }
 	
-	    //find current word`s last character
+	    //parse and get next word first character
 	    var lastCharPos;
 	    if (patternStr) {
-	        var lcp2 = this.findSymbolAfter(p, ' ');//space symbol
+	        //get first blank space position
+	        var fb = this.findSymbolAfter(p, ' ');
+	        //get first visible character which after first blank space
+	        var fvc = this.findSymbolAfter(fb, '\\S');
+	        //get
 	        lastCharPos = this.findSymbolAfter(p, patternStr, '\\S');
-	        console.log('空格：'+lcp2);
+	        console.log('空格：'+fb);
 	        console.log('lastCharPost：'+lastCharPos);
-	        lastCharPos = lastCharPos - p < lcp2 - p ? lastCharPos : lcp2+1;
+	        lastCharPos = lastCharPos - p < fb - p ?
+	                      lastCharPos :
+	                      fvc;
 	    } else {
 	        lastCharPos = this.findSymbolAfter(p, '\\S');//any visible symbol
 	    }
-	    var lastChar = this.getSymbol(lastCharPos);
-	    console.log('word end:'+lastChar);
-	
-	    if (lastCharPos) {
-	        this.select(lastCharPos, lastCharPos+1);
-	    }
+	    return [p, lastCharPos];
+	    //if (lastCharPos) {
+	    //    this.select(lastCharPos, lastCharPos+1);
+	    //}
 	};
 
 
@@ -1072,9 +1089,11 @@
 	    vim.moveToLastLine();
 	};
 	
-	exports.moveToNextWord = function () {
-	    textUtil.getNextWordPos();
-	}
+	exports.moveToNextWord = function (num) {
+	    App.repeatAction(function(){
+	        vim.moveToNextWord();
+	    }, num);
+	};
 
 
 /***/ },
@@ -1394,7 +1413,7 @@
 	    //gg
 	    router.code('71_71', 'gg').action('gg', 'moveToFirstLine');
 	    //w
-	    router.code(87, 'w').action('w', 'moveToNextWord');
+	    router.code(87, 'w').action('w', 'moveToNextWord').action('W', 'moveToNextWord');
 	}
 
 
