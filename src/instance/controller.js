@@ -218,3 +218,9 @@ exports.copyWord = function (num) {
     }, num);
     App.clipboard = textUtil.getText(sp,ep);
 };
+
+exports.deleteWord = function (num) {
+    App.repeatAction(function () {
+       return vim.deleteWord();
+    }, num);
+};

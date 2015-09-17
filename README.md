@@ -85,6 +85,8 @@ npm run build_min
 | supported nw and nW            |
 | yw or yW   | copy one word  |
 | nyw or nyW | copy `n` words |
+| dw or dW   | delete one word  |
+| ndw or ndW | delete `n` word  |
 
 ## 2. edit mode
 |  Command |    Description  |

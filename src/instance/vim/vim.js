@@ -346,3 +346,13 @@ exports.copyWord = function (p) {
     var poses = textUtil.getCurrWordPos(p);
     return poses[1];
 };
+
+exports.deleteWord = function () {
+    var t;
+    var poses = textUtil.getCurrWordPos();
+    if (poses[1]) {
+        t = textUtil.delete(poses[0], poses[1]);
+        textUtil.select(poses[0], poses[0]+1)
+    }
+    return t;
+};

@@ -546,6 +546,17 @@
 	    var poses = textUtil.getCurrWordPos(p);
 	    return poses[1];
 	};
+	
+	exports.deleteWord = function () {
+	    var t;
+	    var poses = textUtil.getCurrWordPos();
+	    if (poses[1]) {
+	        t = textUtil.delete(poses[0], poses[1]);
+	        textUtil.select(poses[0], poses[0]+1)
+	    }
+	    return t;
+	};
+
 
 /***/ },
 /* 4 */
@@ -1110,6 +1121,12 @@
 	    }, num);
 	    App.clipboard = textUtil.getText(sp,ep);
 	};
+	
+	exports.deleteWord = function (num) {
+	    App.repeatAction(function () {
+	       return vim.deleteWord();
+	    }, num);
+	};
 
 
 /***/ },
@@ -1432,6 +1449,8 @@
 	    router.code(87, 'w').action('w', 'moveToNextWord').action('W', 'moveToNextWord');
 	    //copy word
 	    router.code('89_87', 'yw').action('yw', 'copyWord');
+	    //delete one word
+	    router.code('68_87', 'dw').action('dw', 'deleteWord').record(true);
 	}
 
 

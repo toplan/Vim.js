@@ -65,4 +65,6 @@ exports.ready = function(router){
     router.code(87, 'w').action('w', 'moveToNextWord').action('W', 'moveToNextWord');
     //copy word
     router.code('89_87', 'yw').action('yw', 'copyWord');
+    //delete one word
+    router.code('68_87', 'dw').action('dw', 'deleteWord').record(true);
 }
