@@ -324,15 +324,25 @@ exports.moveToLastLine = function () {
 };
 
 exports.moveToNextWord = function () {
-    var poses = textUtil.getCurrWordPos(this.visualCursor);
+    var p;
+    if (this.isMode(VISUAL)) {
+        p = this.visualCursor;
+    }
+    var poses = textUtil.getCurrWordPos(p);
     //poses[1] is next word`s start position
     var sp = poses[1];
     if (sp) {
         if (this.isMode(GENERAL)) {
-            textUtil.select(sp, sp + 1);
+            textUtil.select(sp, sp+1);
         } else if (this.isMode(VISUAL)) {
             textUtil.select(this.visualPosition, sp+1);
             this.visualCursor = sp+1;
         }
     }
+};
+
+exports.copyWord = function (p) {
+    p = p || this.visualCursor;
+    var poses = textUtil.getCurrWordPos(p);
+    return poses[1];
 };

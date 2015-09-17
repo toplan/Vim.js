@@ -524,17 +524,27 @@
 	};
 	
 	exports.moveToNextWord = function () {
-	    var poses = textUtil.getCurrWordPos(this.visualCursor);
+	    var p;
+	    if (this.isMode(VISUAL)) {
+	        p = this.visualCursor;
+	    }
+	    var poses = textUtil.getCurrWordPos(p);
 	    //poses[1] is next word`s start position
 	    var sp = poses[1];
 	    if (sp) {
 	        if (this.isMode(GENERAL)) {
-	            textUtil.select(sp, sp + 1);
+	            textUtil.select(sp, sp+1);
 	        } else if (this.isMode(VISUAL)) {
 	            textUtil.select(this.visualPosition, sp+1);
 	            this.visualCursor = sp+1;
 	        }
 	    }
+	};
+	
+	exports.copyWord = function (p) {
+	    p = p || this.visualCursor;
+	    var poses = textUtil.getCurrWordPos(p);
+	    return poses[1];
 	};
 
 /***/ },
@@ -838,13 +848,10 @@
 	    return this.getSymbol(p-1);
 	};
 	
-	//testing...
 	exports.getCurrWordPos = function (p) {
 	    p = p || this.getCursorPosition();
-	
 	    //current character
 	    var char = this.getSymbol(p);
-	
 	    //parse current character type
 	    var patternStr;
 	    if (/[\w|\u4e00-\u9fa5]/.test(char)) {
@@ -855,27 +862,27 @@
 	        console.log('symbol')
 	    }
 	
-	    //parse and get next word first character
+	    //parse and get current word`s last character`s right position,
+	    //and in other word, get the next word`s first character`s left position
 	    var lastCharPos;
 	    if (patternStr) {
 	        //get first blank space position
 	        var fb = this.findSymbolAfter(p, ' ');
 	        //get first visible character which after first blank space
 	        var fvc = this.findSymbolAfter(fb, '\\S');
-	        //get
+	        //get position
 	        lastCharPos = this.findSymbolAfter(p, patternStr, '\\S');
-	        console.log('空格：'+fb);
-	        console.log('lastCharPost：'+lastCharPos);
-	        lastCharPos = lastCharPos - p < fb - p ?
-	                      lastCharPos :
-	                      fvc;
+	        lastCharPos = lastCharPos - p < fb - p ? lastCharPos : fvc;
 	    } else {
-	        lastCharPos = this.findSymbolAfter(p, '\\S');//any visible symbol
+	        //get any visible symbol`s position
+	        lastCharPos = this.findSymbolAfter(p, '\\S');
 	    }
-	    return [p, lastCharPos];
-	    //if (lastCharPos) {
-	    //    this.select(lastCharPos, lastCharPos+1);
-	    //}
+	
+	    //return current word`s start position and end position
+	    if (lastCharPos < this.getText().length) {
+	        return [p, lastCharPos];
+	    }
+	    return [p, undefined];
 	};
 
 
@@ -1093,6 +1100,15 @@
 	    App.repeatAction(function(){
 	        vim.moveToNextWord();
 	    }, num);
+	};
+	
+	exports.copyWord = function (num) {
+	    var sp = vim.visualPosition || textUtil.getCursorPosition();
+	    var ep;
+	    App.repeatAction(function(){
+	        ep = vim.copyWord(ep);
+	    }, num);
+	    App.clipboard = textUtil.getText(sp,ep);
 	};
 
 
@@ -1412,8 +1428,10 @@
 	    router.code(71, 'g').action('G', 'moveToLastLine');
 	    //gg
 	    router.code('71_71', 'gg').action('gg', 'moveToFirstLine');
-	    //w
+	    //move to next word
 	    router.code(87, 'w').action('w', 'moveToNextWord').action('W', 'moveToNextWord');
+	    //copy word
+	    router.code('89_87', 'yw').action('yw', 'copyWord');
 	}
 
 

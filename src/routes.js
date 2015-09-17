@@ -61,6 +61,8 @@ exports.ready = function(router){
     router.code(71, 'g').action('G', 'moveToLastLine');
     //gg
     router.code('71_71', 'gg').action('gg', 'moveToFirstLine');
-    //w
+    //move to next word
     router.code(87, 'w').action('w', 'moveToNextWord').action('W', 'moveToNextWord');
+    //copy word
+    router.code('89_87', 'yw').action('yw', 'copyWord');
 }

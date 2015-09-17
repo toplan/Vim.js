@@ -209,3 +209,12 @@ exports.moveToNextWord = function (num) {
         vim.moveToNextWord();
     }, num);
 };
+
+exports.copyWord = function (num) {
+    var sp = vim.visualPosition || textUtil.getCursorPosition();
+    var ep;
+    App.repeatAction(function(){
+        ep = vim.copyWord(ep);
+    }, num);
+    App.clipboard = textUtil.getText(sp,ep);
+};

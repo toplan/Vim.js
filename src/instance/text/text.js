@@ -261,13 +261,10 @@ exports.getPrevSymbol = function (p) {
     return this.getSymbol(p-1);
 };
 
-//testing...
 exports.getCurrWordPos = function (p) {
     p = p || this.getCursorPosition();
-
     //current character
     var char = this.getSymbol(p);
-
     //parse current character type
     var patternStr;
     if (/[\w|\u4e00-\u9fa5]/.test(char)) {
@@ -278,25 +275,25 @@ exports.getCurrWordPos = function (p) {
         console.log('symbol')
     }
 
-    //parse and get next word first character
+    //parse and get current word`s last character`s right position,
+    //and in other word, get the next word`s first character`s left position
     var lastCharPos;
     if (patternStr) {
         //get first blank space position
         var fb = this.findSymbolAfter(p, ' ');
         //get first visible character which after first blank space
         var fvc = this.findSymbolAfter(fb, '\\S');
-        //get
+        //get position
         lastCharPos = this.findSymbolAfter(p, patternStr, '\\S');
-        console.log('空格：'+fb);
-        console.log('lastCharPost：'+lastCharPos);
-        lastCharPos = lastCharPos - p < fb - p ?
-                      lastCharPos :
-                      fvc;
+        lastCharPos = lastCharPos - p < fb - p ? lastCharPos : fvc;
     } else {
-        lastCharPos = this.findSymbolAfter(p, '\\S');//any visible symbol
+        //get any visible symbol`s position
+        lastCharPos = this.findSymbolAfter(p, '\\S');
     }
-    return [p, lastCharPos];
-    //if (lastCharPos) {
-    //    this.select(lastCharPos, lastCharPos+1);
-    //}
+
+    //return current word`s start position and end position
+    if (lastCharPos < this.getText().length) {
+        return [p, lastCharPos];
+    }
+    return [p, undefined];
 };
