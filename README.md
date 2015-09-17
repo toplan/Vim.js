@@ -83,9 +83,9 @@ npm run build_min
 | p,P        | `p` paste after，`P` paste before|
 | w or W     | move to next word |
 | supported nw and nW            |
-| yw or yW   | copy one word  |
-| nyw or nyW | copy `n` words |
-| dw or dW   | delete one word  |
+| yw or yW   | copy one word     |
+| nyw or nyW | copy `n` words    |
+| dw or dW   | delete one word   |
 | ndw or ndW | delete `n` words  |
 
 ## 2. edit mode
