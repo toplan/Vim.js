@@ -90,14 +90,14 @@ exports.select = function (start, end) {
     }
 };
 
-exports.appendText = function (t, p, parse, isNewLine) {
+exports.appendText = function (t, p, paste, isNewLine) {
     var ot = this.getText();
     if (p === undefined) {
         p = this.getCursorPosition() + 1;
     }
     var nt = ot.slice(0, p) + t + ot.slice(p, ot.length);
     this.setText(nt);
-    if (parse) {
+    if (paste) {
         if (isNewLine && p) {
             this.select(p+1, p+2);
         } else {
@@ -108,14 +108,14 @@ exports.appendText = function (t, p, parse, isNewLine) {
     }
 };
 
-exports.insertText = function (t, p, parse, isNewLine) {
+exports.insertText = function (t, p, paste, isNewLine) {
     var ot = this.getText();
     if (p === undefined) {
         p = this.getCursorPosition();
     }
     var nt = ot.slice(0, p) + t + ot.slice(p, ot.length);
     this.setText(nt);
-    if (parse) {
+    if (paste) {
         if (isNewLine) {
             this.select(p, p+1);
         } else {
