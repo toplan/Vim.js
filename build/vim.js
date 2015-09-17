@@ -687,14 +687,14 @@
 	    }
 	};
 	
-	exports.appendText = function (t, p, parse, isNewLine) {
+	exports.appendText = function (t, p, paste, isNewLine) {
 	    var ot = this.getText();
 	    if (p === undefined) {
 	        p = this.getCursorPosition() + 1;
 	    }
 	    var nt = ot.slice(0, p) + t + ot.slice(p, ot.length);
 	    this.setText(nt);
-	    if (parse) {
+	    if (paste) {
 	        if (isNewLine && p) {
 	            this.select(p+1, p+2);
 	        } else {
@@ -705,14 +705,14 @@
 	    }
 	};
 	
-	exports.insertText = function (t, p, parse, isNewLine) {
+	exports.insertText = function (t, p, paste, isNewLine) {
 	    var ot = this.getText();
 	    if (p === undefined) {
 	        p = this.getCursorPosition();
 	    }
 	    var nt = ot.slice(0, p) + t + ot.slice(p, ot.length);
 	    this.setText(nt);
-	    if (parse) {
+	    if (paste) {
 	        if (isNewLine) {
 	            this.select(p, p+1);
 	        } else {
@@ -866,9 +866,9 @@
 	    //parse current character type
 	    //
 	    var patternStr;
-	    if (/[\w|\u4e00-\u9fa5]/.test(char)) {
+	    if (/[\w\u4e00-\u9fa5]/.test(char) && /[^\|]/.test(char)) {
 	        //this char is a general character(such as a-z,0-9,_, etc),
-	        //and should find symbol character(such as *&^%$, etc).
+	        //and should find symbol character(such as *&^%$|{(, etc).
 	        //
 	        //pattern string for find symbol char:
 	        patternStr = "[^\\w\u4e00-\u9fa5]";
