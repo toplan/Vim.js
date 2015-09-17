@@ -542,7 +542,6 @@
 	};
 	
 	exports.copyWord = function (p) {
-	    p = p || this.visualCursor;
 	    var poses = textUtil.getCurrWordPos(p);
 	    return poses[1];
 	};
@@ -863,18 +862,27 @@
 	    p = p || this.getCursorPosition();
 	    //current character
 	    var char = this.getSymbol(p);
+	
 	    //parse current character type
+	    //
 	    var patternStr;
 	    if (/[\w|\u4e00-\u9fa5]/.test(char)) {
+	        //this char is a general character(such as a-z,0-9,_, etc),
+	        //and should find symbol character(such as *&^%$, etc).
+	        //
+	        //pattern string for find symbol char:
 	        patternStr = "[^\\w\u4e00-\u9fa5]";
-	        console.log('word')
 	    } else if (/\W/.test(char) && /\S/.test(char)) {
+	        //this char is a symbol character(such as *&^%$, etc),
+	        //and should find general character(such as a-z,0-9,_, etc).
+	        //
+	        //pattern string for find general char:
 	        patternStr = "[\\w\u4e00-\u9fa5]";
-	        console.log('symbol')
 	    }
 	
 	    //parse and get current word`s last character`s right position,
 	    //and in other word, get the next word`s first character`s left position
+	    //
 	    var lastCharPos;
 	    if (patternStr) {
 	        //get first blank space position
@@ -890,6 +898,7 @@
 	    }
 	
 	    //return current word`s start position and end position
+	    //
 	    if (lastCharPos < this.getText().length) {
 	        return [p, lastCharPos];
 	    }
@@ -1114,7 +1123,8 @@
 	};
 	
 	exports.copyWord = function (num) {
-	    var sp = vim.visualPosition || textUtil.getCursorPosition();
+	    vim.pasteInNewLineRequest = false;
+	    var sp = textUtil.getCursorPosition();
 	    var ep;
 	    App.repeatAction(function(){
 	        ep = vim.copyWord(ep);
@@ -1123,6 +1133,7 @@
 	};
 	
 	exports.deleteWord = function (num) {
+	    vim.pasteInNewLineRequest = false;
 	    App.repeatAction(function () {
 	       return vim.deleteWord();
 	    }, num);

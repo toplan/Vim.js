@@ -342,7 +342,6 @@ exports.moveToNextWord = function () {
 };
 
 exports.copyWord = function (p) {
-    p = p || this.visualCursor;
     var poses = textUtil.getCurrWordPos(p);
     return poses[1];
 };

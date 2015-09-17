@@ -211,7 +211,8 @@ exports.moveToNextWord = function (num) {
 };
 
 exports.copyWord = function (num) {
-    var sp = vim.visualPosition || textUtil.getCursorPosition();
+    vim.pasteInNewLineRequest = false;
+    var sp = textUtil.getCursorPosition();
     var ep;
     App.repeatAction(function(){
         ep = vim.copyWord(ep);
@@ -220,6 +221,7 @@ exports.copyWord = function (num) {
 };
 
 exports.deleteWord = function (num) {
+    vim.pasteInNewLineRequest = false;
     App.repeatAction(function () {
        return vim.deleteWord();
     }, num);
