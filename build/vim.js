@@ -885,13 +885,13 @@
 	    //
 	    var lastCharPos;
 	    if (patternStr) {
-	        //get first blank space position
-	        var fb = this.findSymbolAfter(p, ' ');
-	        //get first visible character which after first blank space
-	        var fvc = this.findSymbolAfter(fb, '\\S');
+	        //get first invisible character position
+	        var firstInvisible = this.findSymbolAfter(p, '\\s');
+	        //get first visible character which after first invisible space
+	        var firstVisible = this.findSymbolAfter(firstInvisible, '\\S');
 	        //get position
 	        lastCharPos = this.findSymbolAfter(p, patternStr, '\\S');
-	        lastCharPos = lastCharPos - p < fb - p ? lastCharPos : fvc;
+	        lastCharPos = lastCharPos - p < firstInvisible - p ? lastCharPos : firstVisible;
 	    } else {
 	        //get any visible symbol`s position
 	        lastCharPos = this.findSymbolAfter(p, '\\S');
