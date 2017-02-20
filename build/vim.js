@@ -1005,11 +1005,21 @@
 	    }, 100);
 	};
 	
+	exports.appendLineTail = function () {
+	    vim.moveToCurrentLineTail();
+	    this.append();
+	};
+	
 	exports.insert = function() {
 	    vim.insert();
 	    setTimeout(function () {
 	        vim.switchModeTo(EDIT);
 	    }, 100);
+	};
+	
+	exports.insertLineHead = function () {
+	    vim.moveToCurrentLineHead();
+	    this.insert();
 	};
 	
 	exports.selectNextLine = function (num) {

@@ -92,7 +92,9 @@ npm run build_min
 |  Command |    Description  |
 | ----- | ----------------------- |
 | i     | insert |
+| I     | insert line head |
 | a     | append |
+| A     | append line tail|
 | o     | open line below and enter edit mode |
 | O     | open line after and enter edit mode |
 | r     | replace one character |
